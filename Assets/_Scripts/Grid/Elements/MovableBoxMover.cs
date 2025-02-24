@@ -6,7 +6,7 @@ public class MovableBoxMover : Mover
     {
         Vector2Int targetPosition = new(ThisObjectPosition.x + moveVector.x, ThisObjectPosition.y + moveVector.y);
         SetPreviousPosition(ThisObjectPosition);
-        if (IsValidMove(targetPosition))
+        if (IsValidMove(targetPosition) && !CheckForTag(targetPosition, "Movable"))
         {
             transform.position = GridManager.GridSystem.GetWorldPosition(targetPosition);
             InteractWInteractable(targetPosition);
@@ -20,20 +20,20 @@ public class MovableBoxMover : Mover
     {
         var lastMove = GetLastMoveVector();
         Move(-lastMove);
-        if (CheckForPlayer(ThisObjectPosition - lastMove))
+        if (CheckForTag(ThisObjectPosition - lastMove, "Player"))
         {
             Move(-lastMove);
         }
     }
 
-    private bool CheckForPlayer(Vector2Int target)
+    private bool CheckForTag(Vector2Int target, string tag)
     {
         Collider[] coll = Physics.OverlapSphere(GridManager.GridSystem.GetWorldPosition(target), 0.2f);
         var thisObjectCollider = GetComponent<Collider>();
         foreach (Collider col in coll)
         {
             if (col == thisObjectCollider) continue;
-            if (col.CompareTag("Player")) return true;
+            if (col.CompareTag(tag)) return true;
         }
         return false;
     }
