@@ -11,7 +11,9 @@ public class LevelStateMachine
         _states = new Dictionary<Type, ILevelState>()
         {
             [typeof(LoadingLevelState)] = new LoadingLevelState(this),
-            [typeof(InitializeLevelState)] = new InitializeLevelState(this)
+            [typeof(InitializeLevelState)] = new InitializeLevelState(this),
+            [typeof(LoadingMainMenuState)] = new LoadingMainMenuState(this),
+            [typeof(InitializeMainMenuState)] = new InitializeMainMenuState(this)
         };
     }
 

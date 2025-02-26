@@ -58,9 +58,9 @@ public class GridManager : MonoBehaviour
             GridSystem.AddFloor(gridFloor.GridPosistion, gridFloor);
         }
     }
-    public SaveData CreateSaveData()
+    public LevelData CreateSaveData()
     {
-        SaveData data = new() 
+        LevelData data = new() 
         {
             width = _width, 
             height = _height,
@@ -91,7 +91,7 @@ public class GridManager : MonoBehaviour
         return data;
     }
 
-    public void LoadFromSaveData(SaveData data)
+    public void LoadFromSaveData(LevelData data)
     {
         GridSystem = new GridSystem(data.width, data.height, data.cellSize);
 

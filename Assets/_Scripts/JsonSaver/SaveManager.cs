@@ -12,7 +12,7 @@ public class SaveManager : MonoBehaviour
     //}
     public void SaveLevel()
     {
-        SaveData data = gridManager.CreateSaveData();
+        LevelData data = gridManager.CreateSaveData();
         string json = JsonUtility.ToJson(data, true);
         string path = Path.Combine(Application.persistentDataPath, fileName);
         File.WriteAllText(path, json);
@@ -25,7 +25,7 @@ public class SaveManager : MonoBehaviour
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            LevelData data = JsonUtility.FromJson<LevelData>(json);
             gridManager.LoadFromSaveData(data);
             Debug.Log($"Level loaded");
         }
