@@ -101,7 +101,8 @@ public class GridManager : MonoBehaviour
             GameObject floorPrefab = GetPrefabForFloor(cellData.floorType);
             if (floorPrefab != null)
             {
-                GameObject floorInstance = PrefabUtility.InstantiatePrefab(floorPrefab) as GameObject;
+                //GameObject floorInstance = PrefabUtility.InstantiatePrefab(floorPrefab) as GameObject;
+                GameObject floorInstance = Instantiate(floorPrefab);
                 Vector3 floorWorldPos = GridSystem.GetWorldPosition(new Vector2Int(cellData.x, cellData.y));
                 floorInstance.transform.position = floorWorldPos;
                 Vector3 floorRotation = transform.eulerAngles;
@@ -119,8 +120,8 @@ public class GridManager : MonoBehaviour
             GameObject elementPrefab = GetPrefabForGridElement(cellData.elementType);
             if (elementPrefab != null)
             {
-                GameObject elementInstance = PrefabUtility.InstantiatePrefab(elementPrefab) as GameObject;
-
+                //GameObject elementInstance = PrefabUtility.InstantiatePrefab(elementPrefab) as GameObject;
+                GameObject elementInstance = Instantiate(elementPrefab);
                 Vector3 elementWorldPos = GridSystem.GetWorldPosition(new Vector2Int(cellData.x, cellData.y));
                 elementInstance.transform.position = elementWorldPos;
                 Vector3 elementRotation = transform.eulerAngles;
@@ -138,7 +139,7 @@ public class GridManager : MonoBehaviour
         }
 
     }
-    #endregion
+#endregion
 
     public GameObject GetPrefabForGridElement(GridElementType type)
     {

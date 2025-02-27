@@ -1,7 +1,5 @@
-using System;
 using UnityEditor;
 using UnityEngine;
-using static GridManagerEditor;
 
 #if UNITY_EDITOR
 [CustomEditor(typeof(GridManager))]

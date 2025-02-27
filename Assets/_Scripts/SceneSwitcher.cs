@@ -1,9 +1,6 @@
 using System.Collections;
-using Unity.Loading;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Zenject;
 
 public class SceneSwitcher : MonoBehaviour
 {
