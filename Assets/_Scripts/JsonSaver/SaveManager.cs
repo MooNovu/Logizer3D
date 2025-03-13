@@ -19,19 +19,9 @@ public class SaveManager : MonoBehaviour
         Debug.Log($"Level saved to {path}");
     }
 
-    public void LoadLevel()
+    public void LoadLevel(LevelData levelData)
     {
-        string path = Path.Combine(Application.persistentDataPath, fileName);
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            LevelData data = JsonUtility.FromJson<LevelData>(json);
-            gridManager.LoadFromSaveData(data);
-            Debug.Log($"Level loaded");
-        }
-        else
-        {
-            Debug.LogError("Save file not found");
-        }
+        gridManager.LoadFromSaveData(levelData);
+        Debug.Log($"Level loaded");
     }
 }

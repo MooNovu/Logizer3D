@@ -3,24 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class LevelListManager : MonoBehaviour
+public class LevelList : ILevelList
 {
-    private static LevelListManager _instance;
-    public static LevelListManager Instance => _instance;
-
     private string currentStage;
     private List<LevelData> currentStageLevels = new();
-    private void Awake()
+
+    public LevelList()
     {
-        if (_instance == null)
-        {
-            _instance = this;
-            currentStage = "Stage1";
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        currentStage = "Stage1";
+
     }
 
     public List<LevelData> LoadStage(string stageName)
@@ -42,4 +33,19 @@ public class LevelListManager : MonoBehaviour
         if (currentStageLevels.Count <= 0) LoadStage(currentStage);
         return currentStageLevels[levelId] ?? null;
     }
+
+    public LevelData GetLevel(string stageName, int levelId)
+    {
+        TextAsset[] levelFiles = Resources.LoadAll<TextAsset>($"Levels/{stageName}");
+        return JsonUtility.FromJson<LevelData>(levelFiles[levelId].text);
+    }
 }
+
+
+public interface ILevelList 
+{
+    List<LevelData> LoadStage(string stageName);
+    LevelData GetLevel(int levelId);
+    LevelData GetLevel(string stageName, int levelId);
+}
+

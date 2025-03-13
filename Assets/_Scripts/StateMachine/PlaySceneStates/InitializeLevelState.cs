@@ -1,20 +1,19 @@
 using UnityEngine;
 
-public class LoadingMainMenuState : IState
+public class InitializeLevelState : IState
 {
     private readonly GameStateMachine _levelStateMachine;
-    public LoadingMainMenuState(GameStateMachine levelStateMachine)
+    public InitializeLevelState(GameStateMachine levelStateMachine)
     {
         _levelStateMachine = levelStateMachine;
     }
     public void Enter()
     {
-
-        _levelStateMachine.EnterIn<InitializeMainMenuState>();
+        Debug.Log("Initializing Level Started");
     }
 
     public void Exit()
     {
-
+        Debug.Log("Initializing Level Finished");
     }
 }

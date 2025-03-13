@@ -2,9 +2,12 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class LevelSelectionPanel : UIPanel
 {
+    [Inject] private readonly ISceneSwitcher sceneSwitcher;
+    [Inject] private readonly ILevelList levelList;
     [SerializeField] private Button _backButton;
     [SerializeField] private Transform _levelButtonsContainter;
 
@@ -18,7 +21,7 @@ public class LevelSelectionPanel : UIPanel
     }
     private void InitializeStageLevelsUI()
     {
-        List<LevelData> levels = LevelListManager.Instance.LoadStage("Stage1");
+        List<LevelData> levels = levelList.LoadStage("Stage1");
 
         foreach (LevelData level in levels)
         {
@@ -38,7 +41,6 @@ public class LevelSelectionPanel : UIPanel
     private void LoadLevel(LevelData level)
     {
         LevelDataHolder.SetLevel(level);
-        SceneSwitcher.Instance.LoadLevel();
-        RequestPanel<LoadingScreenPanel>();
+        sceneSwitcher.LoadLevel();
     }
 }

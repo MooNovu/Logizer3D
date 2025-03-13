@@ -20,14 +20,12 @@ public class UIController : MonoBehaviour
         
         RegisterPanels();
         InitializeNavigation();
-        ShowPanel<SceneFade>();
     }
     private void RegisterPanels()
     {
         foreach (var panel in GetComponentsInChildren<IUIPanel>(true))
         {
             _panels.Add(panel.GetType(), panel);
-            panel.HideImmediate();
         }
     }
     private void InitializeNavigation()

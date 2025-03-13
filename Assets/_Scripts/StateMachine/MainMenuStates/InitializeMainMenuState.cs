@@ -1,11 +1,11 @@
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
-public class InitializeMainMenuState : ILevelState
+public class InitializeMainMenuState : IState
 {
-    private readonly LevelStateMachine _levelStateMachine;
+    private readonly GameStateMachine _levelStateMachine;
 
-    public InitializeMainMenuState(LevelStateMachine levelStateMachine)
+    public InitializeMainMenuState(GameStateMachine levelStateMachine)
     {
         _levelStateMachine = levelStateMachine;
     }
