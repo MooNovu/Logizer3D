@@ -8,12 +8,12 @@ public class MovableBoxMover : Mover
         SetPreviousPosition(ThisObjectPosition);
         if (IsValidMove(targetPosition) && !CheckForTag(targetPosition, "Movable"))
         {
-            transform.position = GridManager.GridSystem.GetWorldPosition(targetPosition);
+            transform.position = _gridSystem.GetWorldPosition(targetPosition);
             InteractWInteractable(targetPosition);
             return;
         }
         targetPosition = new(ThisObjectPosition.x - moveVector.x, ThisObjectPosition.y - moveVector.y);
-        transform.position = GridManager.GridSystem.GetWorldPosition(targetPosition);
+        transform.position = _gridSystem.GetWorldPosition(targetPosition);
         InteractWInteractable(targetPosition);
     }
     public override void CancelLastMove()
@@ -28,7 +28,7 @@ public class MovableBoxMover : Mover
 
     private bool CheckForTag(Vector2Int target, string tag)
     {
-        Collider[] coll = Physics.OverlapSphere(GridManager.GridSystem.GetWorldPosition(target), 0.2f);
+        Collider[] coll = Physics.OverlapSphere(_gridSystem.GetWorldPosition(target), 0.2f);
         var thisObjectCollider = GetComponent<Collider>();
         foreach (Collider col in coll)
         {

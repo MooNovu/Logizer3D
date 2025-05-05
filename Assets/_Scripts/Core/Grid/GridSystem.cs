@@ -3,12 +3,22 @@ using UnityEngine;
 
 public class GridSystem
 {
-    private readonly GridCell[,] _grid;
-    public int Width { get; }
-    public int Height { get; }
-    public float CellSize { get; }
+    private GridCell[,] _grid;
+    public int Width { get; private set; }
+    public int Height { get; private set; }
+    public float CellSize { get; private set; }
 
     public GridSystem(int width, int height, float cellSize)
+    {
+        Initialize(width, height, cellSize);
+    }
+
+    public void ReInitialize(int width, int height, float cellSize)
+    {
+        Initialize(width, height, cellSize);
+    }
+
+    private void Initialize(int width, int height, float cellSize)
     {
         Width = width;
         Height = height;

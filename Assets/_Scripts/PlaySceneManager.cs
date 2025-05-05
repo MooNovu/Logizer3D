@@ -4,7 +4,7 @@ using Zenject;
 public class PlaySceneManager : MonoBehaviour
 {
     //[Inject] private GridManager gridManager;
-    [Inject] private SaveManager saveManager;
+    [Inject] private SaveLoadManager saveManager;
 
     private void Start()
     {

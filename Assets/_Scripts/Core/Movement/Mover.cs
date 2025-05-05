@@ -1,12 +1,14 @@
 using UnityEngine;
+using Zenject;
 
 public abstract class Mover : MonoBehaviour, IMovable
 {
+    [Inject] protected GridSystem _gridSystem;
     protected Vector2Int ThisObjectPosition
     {
         get
         {
-            if (GridManager.GridSystem.TryGetGridPosition(transform.position, out var gridPos)) return gridPos;
+            if (_gridSystem.TryGetGridPosition(transform.position, out var gridPos)) return gridPos;
             return new Vector2Int(0, 0);
         }
     }
@@ -17,7 +19,7 @@ public abstract class Mover : MonoBehaviour, IMovable
         if (IsValidMove(targetPosition))
         {
             PreviousPosition = ThisObjectPosition;
-            transform.position = GridManager.GridSystem.GetWorldPosition(targetPosition);
+            transform.position = _gridSystem.GetWorldPosition(targetPosition);
             InteractWInteractable(targetPosition);
             return;
         }
@@ -26,7 +28,7 @@ public abstract class Mover : MonoBehaviour, IMovable
 
     public virtual void Teleport(Vector2Int targetPosition)
     {
-        transform.position = GridManager.GridSystem.GetWorldPosition(targetPosition);
+        transform.position = _gridSystem.GetWorldPosition(targetPosition);
         InteractWInteractable(targetPosition);
         return;
         //Если упал то убить...
@@ -47,13 +49,13 @@ public abstract class Mover : MonoBehaviour, IMovable
 
     protected bool IsValidMove(Vector2Int targetPosition)
     {
-        if (!GridManager.GridSystem.IsCellWalkable(targetPosition)) return false;
+        if (!_gridSystem.IsCellWalkable(targetPosition)) return false;
         return true;
     }
 
     protected void InteractWInteractable(Vector2Int target)
     {
-        Collider[] coll = Physics.OverlapSphere(GridManager.GridSystem.GetWorldPosition(target), 0.2f, LayerMask.GetMask("Interactable"));
+        Collider[] coll = Physics.OverlapSphere(_gridSystem.GetWorldPosition(target), 0.2f, LayerMask.GetMask("Interactable"));
         var thisObjectCollider = GetComponent<Collider>();
         foreach (Collider col in coll)
         {
