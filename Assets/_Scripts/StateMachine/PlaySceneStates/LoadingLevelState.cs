@@ -9,13 +9,11 @@ public class LoadingLevelState : IState
     }
     public void Enter()
     {
-        Debug.Log("Loading Level Started");
-
-        _levelStateMachine.EnterIn<InitializeLevelState>();
+        GameEvents.LoadLevel();
     }
 
     public void Exit()
     {
-        Debug.Log("Loading Level Finished");
+
     }
 }

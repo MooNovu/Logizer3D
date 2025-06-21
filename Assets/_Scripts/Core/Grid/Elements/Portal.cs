@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using Zenject;
 
-public class Portal : GridElement
+public class Portal : GridElement, ISavable, IInteractable
 {
+    [Inject] private GridSystem _gridSystem;
     public override GridElementType Type => GridElementType.Portal;
-    public override bool IsWalkable => true;
     [SerializeField] private int PortalId;
     [SerializeField] private int targetPortalId;
 
@@ -20,24 +21,33 @@ public class Portal : GridElement
     };
 
     private Portal targetPortal;
+    public override bool IsWalkable(Vector2Int moveDirection)
+    {
+        bool isCorrectEntryDirection;
+        if (Rotation % 2 == 0) isCorrectEntryDirection = moveDirection.y != 0;
+        else isCorrectEntryDirection = moveDirection.x != 0;
+        if (!isCorrectEntryDirection) return false;
 
-    public override void Interact(IMovable movable)
+        if (targetPortal == null) targetPortal = FindTargetPortal();
+        if (targetPortal == null) return false;
+
+        Vector2Int exitOffset = GetPortalTeleportOffset(moveDirection, targetPortal.Rotation);
+        Vector2Int exitPosition = targetPortal.GridPosistion + exitOffset;
+        return _gridSystem.IsCellWalkable(exitPosition, exitOffset);
+    }
+    public void Interact(IMovable movable)
     {
         if (targetPortal == null) targetPortal = FindTargetPortal();
-        if (!CheckMoveInto(movable)) return;
+        if (targetPortal == null) return;
 
-        if (targetPortal != null)
-        {
-            Vector2Int offset = GetPortalTeleportOffset(movable, targetPortal.Rotation);
-            movable.SetPreviousPosition(targetPortal.GridPosistion);
-            movable.Teleport(targetPortal.GridPosistion + offset);
-        }
+        Vector2Int offset = GetPortalTeleportOffset(movable.LastMoveVector, targetPortal.Rotation);
+        movable.PreviousPosition = targetPortal.GridPosistion;
+        movable.TryTeleport(targetPortal.GridPosistion + offset);
     }
 
-    private Vector2Int GetPortalTeleportOffset(IMovable movable, int rotation)
+    private Vector2Int GetPortalTeleportOffset(Vector2Int lastMove, int rotation)
     {
         Vector2Int offset = portalTeleportOffset[rotation];
-        Vector2Int lastMove = movable.GetLastMoveVector();
 
         if (lastMove == new Vector2Int(0, -1) || lastMove == new Vector2Int(-1, 0))
         {
@@ -45,29 +55,7 @@ public class Portal : GridElement
         }
         return offset;
     }
-    private bool CheckMoveInto(IMovable movable)
-    {
-        Vector2Int lastMove = movable.GetLastMoveVector();
-        if (Rotation % 2 == 0)
-        {
-            if (lastMove == new Vector2Int(1, 0) || lastMove == new Vector2Int(-1, 0))
-            {
-                movable.CancelLastMove();
-                return false;
-            }
-        }
-        else
-        {
-            if (lastMove == new Vector2Int(0, 1) || lastMove == new Vector2Int(0, -1))
-            {
-                movable.CancelLastMove();
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public override ElementState CaptureState()
+    public ElementState CaptureState()
     {
         return new PortalData
         {
@@ -75,7 +63,7 @@ public class Portal : GridElement
             TargetId = this.targetPortalId
         };
     }
-    public override void RestoreState(ElementState state)
+    public void RestoreState(ElementState state)
     {
         PortalData data = (PortalData)state;
         PortalId = data.currentPortalId;

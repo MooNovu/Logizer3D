@@ -9,11 +9,11 @@ public class InitializeLevelState : IState
     }
     public void Enter()
     {
-        Debug.Log("Initializing Level Started");
+
     }
 
     public void Exit()
     {
-        Debug.Log("Initializing Level Finished");
+
     }
 }

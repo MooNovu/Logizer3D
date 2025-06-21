@@ -1,68 +1,70 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
 public abstract class Mover : MonoBehaviour, IMovable
 {
     [Inject] protected GridSystem _gridSystem;
-    protected Vector2Int ThisObjectPosition
+    protected IGridElement thisElement;
+
+    protected Vector2Int Position
     {
         get
         {
             if (_gridSystem.TryGetGridPosition(transform.position, out var gridPos)) return gridPos;
-            return new Vector2Int(0, 0);
+            return new Vector2Int(-1000, -1000);
         }
     }
-    public Vector2Int PreviousPosition { get; private set; }
-    public virtual void Move(Vector2Int moveVector)
+    public Vector2Int PreviousPosition { get; set; }
+    public Vector2Int LastMoveVector => Position - PreviousPosition;
+    public virtual bool TryMove(Vector2Int direction)
     {
-        Vector2Int targetPosition = new(ThisObjectPosition.x + moveVector.x, ThisObjectPosition.y + moveVector.y);
-        if (IsValidMove(targetPosition))
-        {
-            PreviousPosition = ThisObjectPosition;
-            transform.position = _gridSystem.GetWorldPosition(targetPosition);
-            InteractWInteractable(targetPosition);
-            return;
-        }
-        //Debug.Log("Некорректный ход");
-    }
+        thisElement ??= GetComponent<IGridElement>();
+        Vector2Int targetPosition = Position + direction;
+        if (!_gridSystem.IsCellWalkable(targetPosition, direction)) return false;
 
-    public virtual void Teleport(Vector2Int targetPosition)
-    {
+        PreviousPosition = Position;
+        Vector2Int storePos = Position;
         transform.position = _gridSystem.GetWorldPosition(targetPosition);
-        InteractWInteractable(targetPosition);
-        return;
-        //Если упал то убить...
-    }
-    public Vector2Int GetLastMoveVector()
-    {
-        return (ThisObjectPosition - PreviousPosition);
-    }
-    public void SetPreviousPosition(Vector2Int position)
-    {
-        PreviousPosition = position;
-    }
-    public virtual void CancelLastMove()
-    {
-        var lastMove = GetLastMoveVector();
-        Move(-lastMove);
-    }
+        
+        TryInteractWithObjects(targetPosition);
 
-    protected bool IsValidMove(Vector2Int targetPosition)
-    {
-        if (!_gridSystem.IsCellWalkable(targetPosition)) return false;
+        _gridSystem.TryMoveElement(storePos, Position, thisElement);
         return true;
     }
 
-    protected void InteractWInteractable(Vector2Int target)
+    public virtual bool TryTeleport(Vector2Int targetPosition)
     {
-        Collider[] coll = Physics.OverlapSphere(_gridSystem.GetWorldPosition(target), 0.2f, LayerMask.GetMask("Interactable"));
-        var thisObjectCollider = GetComponent<Collider>();
-        foreach (Collider col in coll)
+        if (!_gridSystem.IsCellWalkable(targetPosition, LastMoveVector)) return false;
+        thisElement ??= GetComponent<IGridElement>();
+
+        transform.position = _gridSystem.GetWorldPosition(targetPosition);
+        TryInteractWithObjects(targetPosition);
+        return true;
+    }
+    public virtual void UndoLastMove()
+    {
+        TryMove(-LastMoveVector);
+    }
+    protected void TryInteractWithObjects(Vector2Int target)
+    {
+        List<GameObject> elements = _gridSystem.GetElementsAsGameObjects(target);
+        foreach (GameObject element in elements)
         {
-            if (col == thisObjectCollider) continue;
-            var element = col.GetComponent<IInteractable>();
-            element?.Interact(this);
+            if (element != null && element.TryGetComponent(out IInteractable interact))
+            {
+                interact.Interact(this);
+            }
         }
 
+        List<GameObject> floors = _gridSystem.GetElementsAsGameObjects(target);
+        foreach (GameObject floor in floors)
+        {
+            if (floor != null && floor.TryGetComponent(out ISteppable step))
+            {
+                step.OnStep(this);
+            }
+        }
     }
+
 }

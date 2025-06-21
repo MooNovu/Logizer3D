@@ -6,36 +6,36 @@ using Zenject;
 
 public class SceneSwitcher : MonoBehaviour, ISceneSwitcher
 {
-    [Inject] private ILoadingScreen _loadingPanel;
+    [Inject] private ILoadingScreen _loadingScreen;
     private float _progress;
-    public float LoadingProgress { get { return _progress; } }
-    public void LoadLevel()
+    public float LoadingProgress => _progress;
+
+    public void SwitchScene(string sceneName)
     {
-        StartCoroutine(LoadSceneAsync(2));
-    }
-    public void LoadMainMenu()
-    {
-        StartCoroutine(LoadSceneAsync(1));
+        StartCoroutine(LoadSceneAsync(sceneName));
     }
 
-    private IEnumerator LoadSceneAsync(int sceneIndex)
+    private IEnumerator LoadSceneAsync(string sceneName)
     {
-        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneIndex);
+        _loadingScreen.Show();
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
         asyncOperation.allowSceneActivation = false;
-        _loadingPanel.FadeOut();
+
         float startTime = Time.time;
 
         while (!asyncOperation.isDone)
         {
-            _progress = Mathf.Clamp01(asyncOperation.progress);
+            _progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
+            _loadingScreen.SetProgress(_progress);
 
             if (asyncOperation.progress >= 0.9f && Time.time - startTime >= 0.75f)
             {
                 asyncOperation.allowSceneActivation = true;
-                _loadingPanel.FadeIn();
             }
 
             yield return null;
         }
+
+        _loadingScreen.Hide();
     }
 }

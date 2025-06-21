@@ -1,30 +1,46 @@
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class GridCell
 {
-    public IFloor Floor;
-    public IGridElement Element { get; private set; }
-
+    public IFloor Floor { get; private set; }
+    public List<IGridElement> Elements { get; private set; }
     public Vector2Int Position { get; }
-
     public GridCell(Vector2Int position)
     {
-        Position = position; 
+        Position = position;
+        Elements = new();
     }
     public void SetFloor(IFloor floor)
     {
         Floor = floor;
     }
-    public void SetElement(IGridElement element)
+
+    public void AddElement(IGridElement element)
     {
-        Element = element; 
+        if (Elements.Contains(element)) return;
+
+        Elements.Add(element); 
+    }
+    public IGridElement GetFirstElementOfType(GridElementType type)
+    {
+        foreach (IGridElement el in Elements)
+        {
+            if (el.Type == type)
+            {
+                return el;
+            }
+        }
+        return null;
     }
     public void ClearFloor()
     {
-        Floor = null; 
+        Floor = null;
     }
-    public void ClearElement()
+    public void RemoveElement(IGridElement element)
     {
-        Element = null; 
+        Elements.Remove(element); 
     }
 }

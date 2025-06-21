@@ -30,11 +30,11 @@ public class BootstrapInitializeState : IState
             .Append(logo.DOFade(1, 1f).SetEase(Ease.OutQuad))
             .AppendInterval(1f)
             .Append(logo.DOFade(0, 1f).SetEase(Ease.OutQuad))
-            .AppendCallback(ToMainMenu);
+            .AppendCallback(SwitchScene);
 
     }
-    private void ToMainMenu()
+    private void SwitchScene()
     {
-        sceneSwitcher.LoadMainMenu();
+        sceneSwitcher.SwitchScene("GameScene");
     }
 }

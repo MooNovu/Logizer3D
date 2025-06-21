@@ -1,3 +1,6 @@
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -6,23 +9,23 @@ public class GridSystem
     private GridCell[,] _grid;
     public int Width { get; private set; }
     public int Height { get; private set; }
-    public float CellSize { get; private set; }
 
-    public GridSystem(int width, int height, float cellSize)
+    public const float CellSize = 1f;
+
+    public GridSystem(int width, int height)
     {
-        Initialize(width, height, cellSize);
+        Initialize(width, height);
     }
 
-    public void ReInitialize(int width, int height, float cellSize)
+    public void ReInitialize(int width, int height)
     {
-        Initialize(width, height, cellSize);
+        Initialize(width, height);
     }
 
-    private void Initialize(int width, int height, float cellSize)
+    private void Initialize(int width, int height)
     {
         Width = width;
         Height = height;
-        CellSize = cellSize;
         _grid = new GridCell[width, height];
 
         for (int x = 0; x < width; x++)
@@ -64,33 +67,73 @@ public class GridSystem
         }
         return null;
     }
-    public bool AddElement(Vector2Int gridPosition, IGridElement element)
+    public GameObject GetElementAsGameObject(Vector2Int gridPosition, IGridElement element)
     {
         var cell = GetCell(gridPosition);
-        if (cell == null || cell.Element != null)
+        if (cell == null) return null;
+        if (cell.GetFirstElementOfType(element.Type) is MonoBehaviour monoBehaviour)
         {
-            return false;
+            if (monoBehaviour != null)
+            {
+                return monoBehaviour.gameObject;
+            }
         }
-        cell.SetElement(element);
-        return true;
+        return null;
     }
-    public bool AddFloor(Vector2Int gridPosition, IFloor floor)
+    public List<GameObject> GetElementsAsGameObjects(Vector2Int gridPosition)
     {
         var cell = GetCell(gridPosition);
-        if (cell == null || cell.Floor != null)
+        if (cell == null) return null;
+        List<GameObject> gameObjects = new();
+        foreach (IGridElement el in cell.Elements)
         {
-            return false;
+            if (el is MonoBehaviour monoBehaviour)
+            {
+                if (monoBehaviour != null)
+                {
+                    gameObjects.Add(monoBehaviour.gameObject);
+                }
+            }
         }
-        cell.SetFloor(floor);
-        return true;
+
+        return gameObjects;
     }
-    public bool IsCellWalkable(Vector2Int gridPosition)
+    public GameObject GetFloorAsGameObject(Vector2Int gridPosition)
+    {
+        var cell = GetCell(gridPosition);
+        if (cell?.Floor is MonoBehaviour monoBehaviour)
+        {
+            if (monoBehaviour != null)
+            {
+                return monoBehaviour.gameObject;
+            }
+        }
+        return null;
+    }
+    public bool TryMoveElement(Vector2Int from, Vector2Int to, IGridElement element)
+    {
+        if (!IsValidGridPosition(to)) return false;
+
+        if (GetElementAsGameObject(from, element) != null)
+        {
+            GetCell(from)?.RemoveElement(element);
+            GetCell(to)?.AddElement(element);
+
+            return true;
+        }
+        return false;
+
+    }
+    public bool IsCellWalkable(Vector2Int gridPosition, Vector2Int direction)
     {
         if (!IsValidGridPosition(gridPosition)) return false;
         var cell = _grid[gridPosition.x, gridPosition.y];
         if (cell?.Floor?.IsWalkable == null || cell?.Floor?.IsWalkable == false) return false;
-        if (cell?.Floor?.IsWalkable == null || cell?.Element?.IsWalkable == false) return false;
-        return true; //Добавить проверку на то, можно ли сдвинуть блок перед - !cell.Element.Any() 
+        foreach (IGridElement el in cell?.Elements)
+        {
+            if (el.IsWalkable(direction) == false) return false;
+        }
+        return true;
     }
 
     public bool IsValidGridPosition(Vector2Int gridPosition)

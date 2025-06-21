@@ -1,40 +1,27 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MovableBoxMover : Mover
 {
-    public override void Move(Vector2Int moveVector)
+    public override bool TryMove(Vector2Int direction)
     {
-        Vector2Int targetPosition = new(ThisObjectPosition.x + moveVector.x, ThisObjectPosition.y + moveVector.y);
-        SetPreviousPosition(ThisObjectPosition);
-        if (IsValidMove(targetPosition) && !CheckForTag(targetPosition, "Movable"))
+        Vector2Int targetPosition = Position + direction;
+        if (_gridSystem.IsCellWalkable(targetPosition, direction))
         {
-            transform.position = _gridSystem.GetWorldPosition(targetPosition);
-            InteractWInteractable(targetPosition);
-            return;
+            List<GameObject> targetGameObjects = _gridSystem.GetElementsAsGameObjects(targetPosition);
+            foreach (GameObject gameObject in targetGameObjects)
+            {
+                if (gameObject != null && gameObject.TryGetComponent(out IMovable _))
+                {
+                    direction = -direction;
+                    break;
+                }
+            }
         }
-        targetPosition = new(ThisObjectPosition.x - moveVector.x, ThisObjectPosition.y - moveVector.y);
-        transform.position = _gridSystem.GetWorldPosition(targetPosition);
-        InteractWInteractable(targetPosition);
-    }
-    public override void CancelLastMove()
-    {
-        var lastMove = GetLastMoveVector();
-        Move(-lastMove);
-        if (CheckForTag(ThisObjectPosition - lastMove, "Player"))
-        {
-            Move(-lastMove);
-        }
-    }
+        else direction = -direction;
 
-    private bool CheckForTag(Vector2Int target, string tag)
-    {
-        Collider[] coll = Physics.OverlapSphere(_gridSystem.GetWorldPosition(target), 0.2f);
-        var thisObjectCollider = GetComponent<Collider>();
-        foreach (Collider col in coll)
-        {
-            if (col == thisObjectCollider) continue;
-            if (col.CompareTag(tag)) return true;
-        }
+        if (base.TryMove(direction)) return true;
+
         return false;
     }
 }
