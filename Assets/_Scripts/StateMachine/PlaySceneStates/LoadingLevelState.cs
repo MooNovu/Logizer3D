@@ -9,7 +9,7 @@ public class LoadingLevelState : IState
     }
     public void Enter()
     {
-        GameEvents.LoadLevel();
+        GameEvents.LoadLevel(CurrentLevelHandler.LevelData);
     }
 
     public void Exit()

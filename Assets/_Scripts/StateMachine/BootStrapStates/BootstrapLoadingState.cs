@@ -9,11 +9,7 @@ public class BootstrapLoadingState : IState
     }
     public void Enter()
     {
-        GameObject canvas = GameObject.FindAnyObjectByType<Canvas>().gameObject;
-        CanvasGroup logo = canvas.GetComponentInChildren<CanvasGroup>(true);
-        logo.alpha = 0;
-        logo.gameObject.SetActive(false);
-
+        //Загрузка из файлов и настройки
         _levelStateMachine.EnterIn<BootstrapInitializeState>();
     }
 

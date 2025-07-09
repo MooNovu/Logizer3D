@@ -7,8 +7,6 @@ public class GameInstaller : MonoInstaller
     [SerializeField] private LoadingScreen _loadingPanel;
     public override void InstallBindings()
     {
-        Container.Bind<ILevelList>().To<LevelList>().AsSingle().NonLazy();
-
         Container.Bind<ISceneSwitcher>()
             .To<SceneSwitcher>()
             .FromInstance(_sceneSwitcherPrefab)

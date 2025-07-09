@@ -2,38 +2,39 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class SaveManager
+public static class SaveManager
 {
-    private readonly string fileName = "_output.json";
-
-    private readonly GridSystem _gridSystem;
-    public SaveManager(GridSystem gridSystem)
+    public readonly static string UserLevelPath = Path.Combine(Application.persistentDataPath, "CustomLevels");
+    public static void SaveLevel(GridSystem gridSystem, string levelName)
     {
-        _gridSystem = gridSystem;
-    }
-    public void SaveLevel()
-    {
-        LevelData data = CreateSaveData();
+        if (!Directory.Exists(UserLevelPath))
+        {
+            Directory.CreateDirectory(UserLevelPath);
+        }
+        LevelData data = CreateSaveData(gridSystem, levelName);
         string json = JsonUtility.ToJson(data, true);
-        string path = Path.Combine(Application.persistentDataPath, fileName);
+
+        string fileName = $"{levelName}.json";
+        string path = Path.Combine(UserLevelPath, fileName);
+
         File.WriteAllText(path, json);
         Debug.Log($"Level saved to {path}");
     }
 
-    private LevelData CreateSaveData()
+    private static LevelData CreateSaveData(GridSystem gridSystem, string levelName)
     {
         LevelData data = new()
         {
-            Name = "Name",
-            width = _gridSystem.Width,
-            height = _gridSystem.Height
+            Name = levelName,
+            width = gridSystem.Width,
+            height = gridSystem.Height
         };
 
-        for (int x = 0; x < _gridSystem.Width; x++)
+        for (int x = 0; x < gridSystem.Width; x++)
         {
-            for (int y = 0; y < _gridSystem.Height; y++)
+            for (int y = 0; y < gridSystem.Height; y++)
             {
-                var cell = _gridSystem.GetCell(new Vector2Int(x, y));
+                var cell = gridSystem.GetCell(new Vector2Int(x, y));
                 if (cell.Elements.Count > 0 || cell.Floor != null)
                 {
                     data.cells.Add(new CellData
@@ -50,7 +51,7 @@ public class SaveManager
         }
         return data;
     }
-    private List<ElementData> ListElements(GridCell cell)
+    private static List<ElementData> ListElements(GridCell cell)
     {
         List<ElementData> elem = new();
         foreach (IGridElement element in cell.Elements)

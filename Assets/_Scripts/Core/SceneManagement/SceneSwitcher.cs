@@ -17,7 +17,7 @@ public class SceneSwitcher : MonoBehaviour, ISceneSwitcher
 
     private IEnumerator LoadSceneAsync(string sceneName)
     {
-        _loadingScreen.Show();
+        _loadingScreen.StartAnimation();
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
         asyncOperation.allowSceneActivation = false;
 
@@ -31,11 +31,12 @@ public class SceneSwitcher : MonoBehaviour, ISceneSwitcher
             if (asyncOperation.progress >= 0.9f && Time.time - startTime >= 0.75f)
             {
                 asyncOperation.allowSceneActivation = true;
+                _loadingScreen.EndAnimation();
             }
 
             yield return null;
         }
 
-        _loadingScreen.Hide();
+        _loadingScreen.SetDefaultPos();
     }
 }

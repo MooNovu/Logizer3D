@@ -9,8 +9,8 @@ public class Portal : GridElement, ISavable, IInteractable
 {
     [Inject] private GridSystem _gridSystem;
     public override GridElementType Type => GridElementType.Portal;
-    [SerializeField] private int PortalId;
-    [SerializeField] private int targetPortalId;
+    public int PortalId;
+    public int TargetPortalId;
 
     private readonly Dictionary<int, Vector2Int> portalTeleportOffset = new()
     {
@@ -38,11 +38,13 @@ public class Portal : GridElement, ISavable, IInteractable
     public void Interact(IMovable movable)
     {
         if (targetPortal == null) targetPortal = FindTargetPortal();
+        if (targetPortal == null) Debug.Log("Нихуя нгет");
         if (targetPortal == null) return;
 
         Vector2Int offset = GetPortalTeleportOffset(movable.LastMoveVector, targetPortal.Rotation);
         movable.PreviousPosition = targetPortal.GridPosistion;
-        movable.TryTeleport(targetPortal.GridPosistion + offset);
+        movable.TryTeleport(targetPortal.GridPosistion, false);
+        movable.TryMove(offset);
     }
 
     private Vector2Int GetPortalTeleportOffset(Vector2Int lastMove, int rotation)
@@ -60,21 +62,24 @@ public class Portal : GridElement, ISavable, IInteractable
         return new PortalData
         {
             currentPortalId = this.PortalId,
-            TargetId = this.targetPortalId
+            TargetId = this.TargetPortalId
         };
     }
     public void RestoreState(ElementState state)
     {
         PortalData data = (PortalData)state;
         PortalId = data.currentPortalId;
-        targetPortalId = data.TargetId;
+        TargetPortalId = data.TargetId;
     }
     private Portal FindTargetPortal()
     {
         Portal[] portals = FindObjectsByType<Portal>(FindObjectsSortMode.None);
         foreach (var portal in portals)
         {
-            if (portal.PortalId == targetPortalId) return portal;
+            if (portal.PortalId == TargetPortalId)
+            {
+                return portal;
+            }
         }
         return null;
     }

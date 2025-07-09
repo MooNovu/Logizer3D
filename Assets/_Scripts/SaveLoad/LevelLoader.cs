@@ -5,47 +5,51 @@ using Zenject;
 public class LevelLoader : MonoBehaviour
 {
     [Inject] private readonly LoadManager _loadManager;
-    [Inject] private readonly ILevelList _levelList;
     [Inject] private readonly CameraController _cameraController;
 
     private void Awake()
     {
         GameEvents.OnPlayerReachedExit += LevelCompleted;
-        GameEvents.OnLevelLoad += LoadNextLevel;
+        GameEvents.OnLevelLoad += LoadLevel;
+        GameEvents.OnLevelNextLoad += LoadNextLevel;
         GameEvents.OnLevelReload += RetryLevel;
     }
     private void OnDestroy()
     {
         GameEvents.OnPlayerReachedExit -= LevelCompleted;
-        GameEvents.OnLevelLoad -= LoadNextLevel;
+        GameEvents.OnLevelLoad -= LoadLevel;
+        GameEvents.OnLevelNextLoad -= LoadNextLevel;
         GameEvents.OnLevelReload -= RetryLevel;
     }
     public void LevelCompleted()
     {
-        int stage = PlayerPrefs.GetInt("Stage");
-        int level = PlayerPrefs.GetInt("Level");
-        Debug.Log($"Level {stage}/{level} Completed!");
         StartCoroutine(CompleteLevelSequence());
     }
+    public void LoadLevel(LevelData lvl)
+    {
 
+        StartCoroutine(LoadingLevelSequence(lvl));
+    }
     public void LoadNextLevel()
     {
-        FindNextLevel();
-
-        StartCoroutine(LoadingLevelSequence());
+        CurrentLevelHandler.LoadNextLevel();
+        if (CurrentLevelHandler.LevelData == null)
+        {
+            Debug.Log("All Levels Completed");
+            return;
+        }
+        StartCoroutine(LoadingLevelSequence(CurrentLevelHandler.LevelData));
     }
     public void RetryLevel()
     {
         StartCoroutine(RetryLevelSequence());
     }
 
-    public IEnumerator LoadingLevelSequence()
+    public IEnumerator LoadingLevelSequence(LevelData lvl)
     {
         UIEvents.BlockUI();
-        int stage = PlayerPrefs.GetInt("Stage");
-        int level = PlayerPrefs.GetInt("Level");
-        Debug.Log($"Starting Loading level {stage}/{level}");
-        _loadManager.LoadLevel(_levelList.GetLevel(stage, level));
+        Debug.Log($"Starting Loading level {CurrentLevelHandler.LevelId}");
+        _loadManager.LoadLevel(lvl);
         yield return null;
 
         StartCoroutine(Camera());
@@ -60,10 +64,9 @@ public class LevelLoader : MonoBehaviour
         yield return _loadManager.ClearLevel();
         _loadManager.RemovePlayer();
 
-        int stage = PlayerPrefs.GetInt("Stage");
-        int level = PlayerPrefs.GetInt("Level");
-        Debug.Log($"Reload level {stage}/{level}");
-        _loadManager.LoadLevel(_levelList.GetLevel(stage, level));
+        LevelData lvl = CurrentLevelHandler.LevelData;
+        Debug.Log($"Reload level {lvl.Name}");
+        _loadManager.LoadLevel(lvl);
         yield return null;
 
         StartCoroutine(Camera());
@@ -85,31 +88,5 @@ public class LevelLoader : MonoBehaviour
         yield return _cameraController.CameraSequence();
         _loadManager.SpawnPlayer();
         UIEvents.UnblockUI();
-    }
-
-    private void FindNextLevel()
-    {
-        int stageId = PlayerPrefs.GetInt("Stage", -1);
-        int levelId = PlayerPrefs.GetInt("Stage", -1);
-
-        int stagesCount = _levelList.GetStagesCount();
-        int levelsInStageCount = _levelList.GetLevelsCount(stageId);
-        if (stageId == -1 && levelId == -1)
-        {
-            PlayerPrefs.SetInt("Stage", 1);
-            PlayerPrefs.SetInt("Level", 1);
-            return;
-        }
-        if (levelId < levelsInStageCount)
-        {
-            PlayerPrefs.SetInt("Level", levelId + 1);
-            return;
-        }
-        if (stageId < stagesCount)
-        {
-            PlayerPrefs.SetInt("Stage", stageId + 1);
-            PlayerPrefs.SetInt("Level", 1);
-            return;
-        }
     }
 }

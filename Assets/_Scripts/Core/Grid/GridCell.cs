@@ -18,11 +18,12 @@ public class GridCell
         Floor = floor;
     }
 
-    public void AddElement(IGridElement element)
+    public bool AddElement(IGridElement element)
     {
-        if (Elements.Contains(element)) return;
+        if (Elements.Contains(element)) return false;
 
-        Elements.Add(element); 
+        Elements.Add(element);
+        return true;
     }
     public IGridElement GetFirstElementOfType(GridElementType type)
     {

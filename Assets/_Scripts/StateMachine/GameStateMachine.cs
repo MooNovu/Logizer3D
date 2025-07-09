@@ -6,9 +6,7 @@ public class GameStateMachine :  IStateMachine
 {
     private Dictionary<Type, IState> _states;
     private IState _currentState;
-
-    [Inject]
-    public GameStateMachine(ISceneSwitcher sceneSwitcher)
+    public GameStateMachine()
     {
         _states = new Dictionary<Type, IState>()
         {
@@ -16,7 +14,7 @@ public class GameStateMachine :  IStateMachine
             [typeof(InitializeLevelState)] = new InitializeLevelState(this),
 
             [typeof(BootstrapLoadingState)] = new BootstrapLoadingState(this),
-            [typeof(BootstrapInitializeState)] = new BootstrapInitializeState(this, sceneSwitcher)
+            [typeof(BootstrapInitializeState)] = new BootstrapInitializeState(this)
         };
     }
 

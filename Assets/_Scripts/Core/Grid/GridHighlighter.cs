@@ -20,7 +20,7 @@ public class GridHighlighter : MonoBehaviour
         {
             for (int y = 0; y < _gridSystem.Height; y++)
             {
-                var pos = _gridSystem.GetWorldPosition(new Vector2Int(x, y));
+                var pos = GridSystem.GetWorldPosition(new Vector2Int(x, y));
                 Gizmos.DrawWireCube(pos + Vector3.up * 0.01f, 
                     new Vector3(GridSystem.CellSize, 0.01f, GridSystem.CellSize));
             }

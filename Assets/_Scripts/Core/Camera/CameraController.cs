@@ -25,6 +25,10 @@ public class CameraController : MonoBehaviour
         _camera = GetComponent<Camera>();
         GameEvents.OnPlayerMoved += FollowPlayer;
     }
+    private void OnDestroy()
+    {
+        GameEvents.OnPlayerMoved -= FollowPlayer;
+    }
     private void FollowPlayer(Vector3 pos)
     {
         Vector3 targetPosition = new(pos.x - 3.4f, 10f, pos.z - 5.6f);
@@ -103,19 +107,19 @@ public class CameraController : MonoBehaviour
                 var cell = _gridSystem.GetCell(new Vector2Int(x, y));
                 if (cell.Elements.Count > 0 && !isMinPosSet)
                 {
-                    minPos = _gridSystem.GetWorldPosition(cell.Position);
+                    minPos = GridSystem.GetWorldPosition(cell.Position);
                     isMinPosSet = true;
                 }
 
-                if (cell.Elements.Count > 0) maxPos = _gridSystem.GetWorldPosition(cell.Position);
+                if (cell.Elements.Count > 0) maxPos = GridSystem.GetWorldPosition(cell.Position);
 
                 if (cell.GetFirstElementOfType(GridElementType.Spawn) != null)
                 {
-                    _spawnPosition = _gridSystem.GetWorldPosition(cell.Position);
+                    _spawnPosition = GridSystem.GetWorldPosition(cell.Position);
                 }
                 if (cell.GetFirstElementOfType(GridElementType.Exit) != null)
                 {
-                    _exitPosition = _gridSystem.GetWorldPosition(cell.Position);
+                    _exitPosition = GridSystem.GetWorldPosition(cell.Position);
                 }
             }
         }

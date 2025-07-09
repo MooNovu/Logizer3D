@@ -37,9 +37,9 @@ public class GridSystem
         }
     }
 
-    public Vector3 GetWorldPosition(Vector2Int gridPosition)
+    public static Vector3 GetWorldPosition(Vector2Int gridPosition)
     {
-        return new Vector3(gridPosition.x * CellSize, 0, gridPosition.y * CellSize);
+        return new Vector3(gridPosition.x, 0, gridPosition.y);
     }
 
     public bool TryGetGridPosition(Vector3 worldPosition, out Vector2Int gridPosition)
@@ -133,6 +133,13 @@ public class GridSystem
         {
             if (el.IsWalkable(direction) == false) return false;
         }
+        return true;
+    }
+    public bool IsCellWalkable(Vector2Int gridPosition)
+    {
+        if (!IsValidGridPosition(gridPosition)) return false;
+        var cell = _grid[gridPosition.x, gridPosition.y];
+        if (cell?.Floor?.IsWalkable == null || cell?.Floor?.IsWalkable == false) return false;
         return true;
     }
 

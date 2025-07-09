@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 2
   Prefab: {fileID: 7349146889598071384, guid: 224025ac58fcf914c946fc28fee4ddd2, type: 3}
+  EditorPrefab: {fileID: 6702933102544529698, guid: 3131bc58ac2e74d449c33f0cd2418b13, type: 3}
+  EditorIcon: {fileID: 2800000, guid: 8fd97185094325741ac4dafff9892d3b, type: 3}

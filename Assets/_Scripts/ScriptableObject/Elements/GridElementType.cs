@@ -6,6 +6,7 @@ public class GridElementTypeSO : ScriptableObject
 {
     public GridElementType Type;
     public GameObject Prefab;
-    public TileBase EditorTile;
+
+    public GameObject EditorPrefab;
     public Texture2D EditorIcon;
 }

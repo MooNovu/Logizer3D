@@ -7,8 +7,6 @@ public class LoadManager
 {
     private readonly GridSystem _gridSystem;
     private readonly GridFactory _gridFactory;
-    private readonly LevelAnimationHandler _animationHandler;
-    private readonly IStateMachine _levelStateMachine;
 
     private readonly float _timeToSpawn = 1.0f;
     private readonly Vector3 _spawnOffset = Vector3.up * 10f;
@@ -25,15 +23,11 @@ public class LoadManager
 
     public LoadManager(
         GridSystem gridSystem,
-        GridFactory gridFactory,
-        LevelAnimationHandler animationHandler,
-        IStateMachine levelStateMachine
+        GridFactory gridFactory
         )
     {
         _gridSystem = gridSystem;
         _gridFactory = gridFactory;
-        _animationHandler = animationHandler;
-        _levelStateMachine = levelStateMachine;
 
         _player = _gridFactory.CreatePlayer(Skin.Default, _playerInactivePosition);
     }
@@ -43,6 +37,11 @@ public class LoadManager
     }
     private void LoadFromSaveData(LevelData data)
     {
+        if (data == null)
+        {
+            Debug.LogError("Level Data is NULL");
+            return;
+        }
         RemovePlayer();
         _gridSystem.ReInitialize(data.width, data.height);
 
@@ -52,7 +51,7 @@ public class LoadManager
         foreach (CellData cellData in data.cells)
         {
             Vector2Int position = new(cellData.x, cellData.y);
-            Vector3 worldPos = _gridSystem.GetWorldPosition(position);
+            Vector3 worldPos = GridSystem.GetWorldPosition(position);
             worldPos += _spawnOffset;
 
             if (cellData.floorType != FloorType.Abyss)
@@ -93,8 +92,7 @@ public class LoadManager
     }
     public void SpawnPlayer()
     {
-        _player.transform.position = _gridSystem.GetWorldPosition(_playerSpawn);
-        _gridSystem.GetCell(_playerSpawn)?.AddElement(_player.GetComponent<IGridElement>());
+        _player.GetComponent<IMovable>().TryTeleport(_playerSpawn);
     }
     public void RemovePlayer()
     {
@@ -134,7 +132,7 @@ public class LoadManager
 
             Vector3 startPos = obj.transform.position;
             _gridSystem.TryGetGridPosition(startPos - _spawnOffset, out Vector2Int tempPos);
-            Vector3 targetPos = _gridSystem.GetWorldPosition(tempPos);
+            Vector3 targetPos = GridSystem.GetWorldPosition(tempPos);
 
             obj.transform.DOMove(targetPos, _duration).SetEase(Ease.OutBounce);
             obj.transform.DOScale(Vector3.one, _duration).From(Vector3.zero).SetEase(Ease.OutBounce);
