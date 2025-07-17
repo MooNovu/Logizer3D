@@ -43,6 +43,7 @@ public class LoadManager
             return;
         }
         RemovePlayer();
+        SignalSystem.UnsubscribeAll();
         _gridSystem.ReInitialize(data.width, data.height);
 
         allObjects = new();
@@ -92,7 +93,7 @@ public class LoadManager
     }
     public void SpawnPlayer()
     {
-        _player.GetComponent<IMovable>().TryTeleport(_playerSpawn);
+        _player.GetComponent<IMovable>().TryTeleport(_playerSpawn, false);
     }
     public void RemovePlayer()
     {
@@ -113,14 +114,9 @@ public class LoadManager
     }
     private bool IsStaticObject(GameObject obj)
     {
-        if (obj.TryGetComponent(out ISavable _) ||
-            obj.TryGetComponent(out IInteractable _) ||
-            obj.TryGetComponent(out ISteppable _)
-            )
-        {
-            return false;
-        }
-        return true;
+        if (obj.TryGetComponent(out IStatic _)) return true;
+
+        return false;
     }
     public IEnumerator SpawnAnimation()
     {

@@ -4,11 +4,11 @@ using UnityEngine;
 
 public static class GameEvents
 {
-    public static Action OnPlayerReachedExit;
-    public static Action OnLevelNextLoad;
-    public static Action<LevelData> OnLevelLoad;
-    public static Action OnLevelReload;
-    public static Action<Vector3> OnPlayerMoved;
+    public static event Action OnPlayerReachedExit;
+    public static event Action OnLevelNextLoad;
+    public static event Action<LevelData> OnLevelLoad;
+    public static event Action OnLevelReload;
+    public static event Action<Vector3> OnPlayerMoved;
     public static void PlayerReachedExit() => OnPlayerReachedExit?.Invoke();
     public static void LoadNextLevel() => OnLevelNextLoad?.Invoke();
     public static void LoadLevel(LevelData lvl) => OnLevelLoad?.Invoke(lvl);
@@ -17,12 +17,12 @@ public static class GameEvents
 
 
     //Editor
-    public static Action<LevelData> OnInitializeEditor;
+    public static event Action<LevelData> OnInitializeEditor;
     public static void InitializeEditor(LevelData levelData) => OnInitializeEditor.Invoke(levelData);
 
-    public static Action<GridElementTypeSO> OnElementChange;
+    public static event Action<GridElementTypeSO> OnElementChange;
     public static void ElementChangeTo(GridElementTypeSO element) => OnElementChange.Invoke(element);
 
-    public static Action<GridFloorTypeSO> OnFloorChange;
+    public static event Action<GridFloorTypeSO> OnFloorChange;
     public static void FloorChangeTo(GridFloorTypeSO floor) => OnFloorChange.Invoke(floor);
 }

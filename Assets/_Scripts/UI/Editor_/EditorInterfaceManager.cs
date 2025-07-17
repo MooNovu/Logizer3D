@@ -2,7 +2,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EditorButtonCreator : MonoBehaviour
+public class EditorInterfaceManager : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private GameObject _floorButtonsPanel;
@@ -11,53 +11,37 @@ public class EditorButtonCreator : MonoBehaviour
 
     [Header("RedactorModeButton")]
     [SerializeField] private GameObject _redactorModeButton;
-    private Image _redactorButtonImage;
     [SerializeField] private Texture2D _createImage;
     [SerializeField] private Texture2D _editImage;
     [SerializeField] private Texture2D _deleteImage;
+    private Image _redactorButtonImage;
 
     [Header("Data")]
     [SerializeField] private GridElementsContainer _elementContainer;
     [SerializeField] private GridFloorsContainer _floorContainer;
 
-    private CanvasGroup _floors;
-    private CanvasGroup _elements;
-
     private void Start()
     {
         _floorButtonsPanel.SetActive(true);
         _elementButtonsPanel.SetActive(true);
-        _floors = _floorButtonsPanel.GetComponent<CanvasGroup>();
-        _elements = _elementButtonsPanel.GetComponent<CanvasGroup>();
+        UIAnimationHandler.OpenAnimation(_floorButtonsPanel, true);
+        UIAnimationHandler.CloseAnimation(_elementButtonsPanel, true);
+
         _redactorButtonImage = _redactorModeButton.GetComponent<Image>();
-        _floors.alpha = 1;
-        _floors.blocksRaycasts = true;
-        _floorButtonsPanel.transform.DOScale(new Vector3(1, 1, 1), 0);
-        _elements.alpha = 0;
-        _elements.blocksRaycasts = false;
-        _elementButtonsPanel.transform.DOScale(new Vector3(0, 0, 0), 0);
         CreateButtons();
     }
 
     public void ShowElementPanel()
     {
-        _floors.DOFade(0f, 0.1f).SetEase(Ease.InQuad);
-        _floors.blocksRaycasts = false;
-        _floorButtonsPanel.transform.DOScale(new Vector3(0, 0, 0), 0.1f).SetEase(Ease.InQuad);
+        UIAnimationHandler.CloseAnimation(_floorButtonsPanel);
 
-        _elements.DOFade(1f, 0.1f).SetEase(Ease.InQuad);
-        _elements.blocksRaycasts = true;
-        _elementButtonsPanel.transform.DOScale(new Vector3(1, 1, 1), 0.1f).SetEase(Ease.InQuad);
+        UIAnimationHandler.OpenAnimation(_elementButtonsPanel);
     }
     public void ShowFloorPanel()
     {
-        _floors.DOFade(1f, 0.1f).SetEase(Ease.InQuad); 
-        _floors.blocksRaycasts = true;
-        _floorButtonsPanel.transform.DOScale(new Vector3(1, 1, 1), 0.1f).SetEase(Ease.InQuad);
+        UIAnimationHandler.CloseAnimation(_elementButtonsPanel);
 
-        _elements.DOFade(0f, 0.1f).SetEase(Ease.InQuad);
-        _elements.blocksRaycasts = false;
-        _elementButtonsPanel.transform.DOScale(new Vector3(0, 0, 0), 0.1f).SetEase(Ease.InQuad); 
+        UIAnimationHandler.OpenAnimation(_floorButtonsPanel);
     }
 
     public void RedactorButtonMode(RedactorTool toolType)

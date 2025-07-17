@@ -1,13 +1,16 @@
+using DG.Tweening;
 using ModestTree;
 using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using static UnityEngine.GraphicsBuffer;
 
-public class Portal : GridElement, ISavable, IInteractable
+public class Portal : GridElement, ISavable, IInteractable, IEditable, ITransformChanger, ISpecialAnimation, IExitSpecialAnimation
 {
-    [Inject] private GridSystem _gridSystem;
+    [Inject] private readonly GridSystem _gridSystem;
+    public string EditorTitle => "Portal";
     public override GridElementType Type => GridElementType.Portal;
     public int PortalId;
     public int TargetPortalId;
@@ -32,21 +35,20 @@ public class Portal : GridElement, ISavable, IInteractable
         if (targetPortal == null) return false;
 
         Vector2Int exitOffset = GetPortalTeleportOffset(moveDirection, targetPortal.Rotation);
-        Vector2Int exitPosition = targetPortal.GridPosistion + exitOffset;
+        Vector2Int exitPosition = targetPortal.GridPosition + exitOffset;
         return _gridSystem.IsCellWalkable(exitPosition, exitOffset);
     }
     public void Interact(IMovable movable)
     {
         if (targetPortal == null) targetPortal = FindTargetPortal();
-        if (targetPortal == null) Debug.Log("Нихуя нгет");
         if (targetPortal == null) return;
 
         Vector2Int offset = GetPortalTeleportOffset(movable.LastMoveVector, targetPortal.Rotation);
-        movable.PreviousPosition = targetPortal.GridPosistion;
-        movable.TryTeleport(targetPortal.GridPosistion, false);
+        movable.PreviousPosition = targetPortal.GridPosition;
+        movable.TryTeleport(targetPortal.GridPosition, false);
+        movable.SetNextMoveAnimation(this);
         movable.TryMove(offset);
     }
-
     private Vector2Int GetPortalTeleportOffset(Vector2Int lastMove, int rotation)
     {
         Vector2Int offset = portalTeleportOffset[rotation];
@@ -71,6 +73,24 @@ public class Portal : GridElement, ISavable, IInteractable
         PortalId = data.currentPortalId;
         TargetPortalId = data.TargetId;
     }
+    public List<EditorParameter> GetEditorParameters()
+    {
+        return new List<EditorParameter>
+        {
+            new()
+            {
+                Name = "This Portal ID",
+                Value = PortalId,
+                OnChanged = (int id) => PortalId = id
+            },
+            new()
+            {
+                Name = "Target Portal ID",
+                Value = TargetPortalId,
+                OnChanged = (int id) => TargetPortalId = id
+            }
+        };
+    }
     private Portal FindTargetPortal()
     {
         Portal[] portals = FindObjectsByType<Portal>(FindObjectsSortMode.None);
@@ -82,6 +102,20 @@ public class Portal : GridElement, ISavable, IInteractable
             }
         }
         return null;
+    }
+
+    public Sequence GetAnimation(Transform targetTransform, Vector2Int targetPosition)
+    {
+        return DOTween.Sequence()
+            .Append(targetTransform.DOMove(GridSystem.GetWorldPosition(targetPosition), 0.25f)).
+            Join(targetTransform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InQuad));
+    }
+
+    public Sequence GetExitAnimation(Transform targetTransform, Vector2Int targetPosition)
+    {
+        return DOTween.Sequence()
+            .Append(targetTransform.DOMove(GridSystem.GetWorldPosition(targetPosition), 0.25f)).
+            Join(targetTransform.DOScale(Vector3.one, 0.25f).SetEase(Ease.InQuad));
     }
 }
 

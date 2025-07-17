@@ -18,7 +18,7 @@ public class LevelConverter
 
         foreach (IGridElement gridElement in gridElements)
         {
-            _gridSystem.GetCell(gridElement.GridPosistion).AddElement(gridElement);
+            _gridSystem.GetCell(gridElement.GridPosition).AddElement(gridElement);
         }
 
         IFloor[] gridFloors = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)

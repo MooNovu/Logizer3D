@@ -12,7 +12,7 @@ public abstract class GridElement : MonoBehaviour, IGridElement
             return (int)transform.eulerAngles.y / 90;
         }
     }
-    public Vector2Int GridPosistion
+    public Vector2Int GridPosition
     {
         get
         {

@@ -6,7 +6,6 @@ using Zenject;
 
 public class SceneSwitcher : MonoBehaviour, ISceneSwitcher
 {
-    [Inject] private ILoadingScreen _loadingScreen;
     private float _progress;
     public float LoadingProgress => _progress;
 
@@ -17,7 +16,7 @@ public class SceneSwitcher : MonoBehaviour, ISceneSwitcher
 
     private IEnumerator LoadSceneAsync(string sceneName)
     {
-        _loadingScreen.StartAnimation();
+        UIEvents.LoadingScreenAnimationStart();
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
         asyncOperation.allowSceneActivation = false;
 
@@ -26,17 +25,14 @@ public class SceneSwitcher : MonoBehaviour, ISceneSwitcher
         while (!asyncOperation.isDone)
         {
             _progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
-            _loadingScreen.SetProgress(_progress);
+            //_loadingScreen.SetProgress(_progress);
 
             if (asyncOperation.progress >= 0.9f && Time.time - startTime >= 0.75f)
             {
                 asyncOperation.allowSceneActivation = true;
-                _loadingScreen.EndAnimation();
             }
 
             yield return null;
         }
-
-        _loadingScreen.SetDefaultPos();
     }
 }

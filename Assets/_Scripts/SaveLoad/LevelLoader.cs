@@ -47,7 +47,6 @@ public class LevelLoader : MonoBehaviour
 
     public IEnumerator LoadingLevelSequence(LevelData lvl)
     {
-        UIEvents.BlockUI();
         Debug.Log($"Starting Loading level {CurrentLevelHandler.LevelId}");
         _loadManager.LoadLevel(lvl);
         yield return null;
@@ -60,7 +59,6 @@ public class LevelLoader : MonoBehaviour
     }
     public IEnumerator RetryLevelSequence()
     {
-        UIEvents.BlockUI();
         yield return _loadManager.ClearLevel();
         _loadManager.RemovePlayer();
 
@@ -77,16 +75,13 @@ public class LevelLoader : MonoBehaviour
     }
     public IEnumerator CompleteLevelSequence()
     {
-        UIEvents.BlockUI();
         yield return _loadManager.ClearLevel();
         _loadManager.RemovePlayer();
-        UIEvents.UnblockUI();
         UIEvents.ShowResaulMenu();
     }
     private IEnumerator Camera()
     {
         yield return _cameraController.CameraSequence();
         _loadManager.SpawnPlayer();
-        UIEvents.UnblockUI();
     }
 }

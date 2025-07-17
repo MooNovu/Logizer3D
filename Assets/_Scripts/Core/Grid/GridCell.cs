@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 
@@ -35,6 +36,17 @@ public class GridCell
             }
         }
         return null;
+    }
+    public bool HasTransformChanger()
+    {
+        foreach (var el in Elements)
+        {
+            if (el is ITransformChanger)
+            {
+                return true;
+            }
+        }
+        return false;
     }
     public void ClearFloor()
     {

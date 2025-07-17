@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 public interface IGridElement
 {
     GridElementType Type { get; }
-    Vector2Int GridPosistion { get; }
+    Vector2Int GridPosition { get; }
     bool IsWalkable(Vector2Int moveDirection);
     int Rotation { get; }
 }
@@ -20,7 +20,8 @@ public interface IFloor
 public enum FloorType
 {
     Abyss,
-    Road
+    Road,
+    Ice
 }
 public enum GridElementType 
 {
@@ -30,5 +31,8 @@ public enum GridElementType
     MovableBox,
     Spawn,
     Exit,
-    Player
+    Player,
+    Key,
+    PressurePlate,
+    Door
 }

@@ -14,12 +14,7 @@ public class MainButtonPanel : MonoBehaviour
 
     private void Start()
     {
-        _mainPanel.SetActive(true);
-
-        _levelSelectionPanel.SetActive(true);
         UIAnimationHandler.CloseAnimation(_levelSelectionPanel, true);
-
-        _redactorLevelSelectionPanel.SetActive(true);
         UIAnimationHandler.CloseAnimation(_redactorLevelSelectionPanel, true);
     }
 

@@ -15,7 +15,6 @@ public class PlayLevelSelection : MonoBehaviour
     [Inject] private ISceneSwitcher _sceneSwitcher;
     public int Page { get; private set; }
 
-    private CanvasGroup _canvasGroup;
     private List<GameObject> _buttons = new();
     private const int _itemsOnPageCount = 12;
     private int LevelCount => LevelList.GetLevelsCount();
@@ -23,7 +22,6 @@ public class PlayLevelSelection : MonoBehaviour
 
     private void Start()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
         Page = 1;
         CreateButttons();
         ReloadButtons();
@@ -60,7 +58,6 @@ public class PlayLevelSelection : MonoBehaviour
                 btn.onClick.AddListener(() => 
                     {
                         CurrentLevelHandler.SetLevel(id);
-                        _canvasGroup.interactable = false;
                         _sceneSwitcher.SwitchScene("Game");
                     }
                 );

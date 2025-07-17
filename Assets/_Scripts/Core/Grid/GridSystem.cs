@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class GridSystem
 {
@@ -80,6 +81,18 @@ public class GridSystem
         }
         return null;
     }
+    public bool IsMovableOnPosition(Vector2Int gridPosition)
+    {
+        List<GameObject> targetGameObjects = GetElementsAsGameObjects(gridPosition);
+        foreach (GameObject gameObject in targetGameObjects)
+        {
+            if (gameObject != null && gameObject.TryGetComponent(out IMovable _))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     public List<GameObject> GetElementsAsGameObjects(Vector2Int gridPosition)
     {
         var cell = GetCell(gridPosition);
@@ -97,6 +110,26 @@ public class GridSystem
         }
 
         return gameObjects;
+    }
+    public bool TryGetSpecialAnimation(Vector2Int gridPosition, out ISpecialAnimation specialAnim)
+    {
+        specialAnim = null;
+        var cell = GetCell(gridPosition);
+        if (cell == null) return false;
+        foreach (IGridElement el in cell.Elements)
+        {
+            if (el is ISpecialAnimation se)
+            {
+                specialAnim = se;
+                return true;
+            }
+        }
+        if (cell.Floor is ISpecialAnimation sf)
+        {
+            specialAnim = sf;
+            return true;
+        }
+        return false;
     }
     public GameObject GetFloorAsGameObject(Vector2Int gridPosition)
     {

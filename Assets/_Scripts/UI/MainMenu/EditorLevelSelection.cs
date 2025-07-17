@@ -20,11 +20,8 @@ public class EditorLevelSelection : MonoBehaviour
 
     private List<RedactorPanel> _panelContainer = new();
 
-    private CanvasGroup _canvasGroup;
-
     private void Start()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
         _newLevelPanel.SetActive(true);
         UIAnimationHandler.CloseAnimation(_newLevelPanel, true);
         CreateButtons();
@@ -32,14 +29,12 @@ public class EditorLevelSelection : MonoBehaviour
 
     public void OpenNewLevelPanel()
     {
-        _canvasGroup.interactable = false;
+        _levelNameInputField.text = "";
+        _gridSizeInputField.text = "";
         UIAnimationHandler.OpenAnimation(_newLevelPanel);
     }
     public void CloseNewLevelPanel()
     {
-        _levelNameInputField.text = "";
-        _gridSizeInputField.text = "";
-        _canvasGroup.interactable = true;
         UIAnimationHandler.CloseAnimation(_newLevelPanel);
     }
     public void CreateNewLevel()
@@ -69,7 +64,7 @@ public class EditorLevelSelection : MonoBehaviour
     }
     private void AddPanel(string levelName)
     {
-        RedactorPanel panel = new(_uiRedactorPanelPrefab, _parent, levelName, _sceneSwitcher, _canvasGroup);
+        RedactorPanel panel = new(_uiRedactorPanelPrefab, _parent, levelName, _sceneSwitcher);
         _panelContainer.Add(panel);
     }
 
@@ -80,15 +75,12 @@ public class EditorLevelSelection : MonoBehaviour
         private readonly Button _editButton;
         private readonly Button _playButton;
         private readonly ISceneSwitcher _sceneSwitcher;
-        private readonly CanvasGroup _canvas;
         public RedactorPanel(GameObject prefab,
             Transform parent,
             string levelName,
-            ISceneSwitcher sceneSwitcher,
-            CanvasGroup canvas)
+            ISceneSwitcher sceneSwitcher)
         {
             _sceneSwitcher = sceneSwitcher;
-            _canvas = canvas;
 
             _panel = GameObject.Instantiate(prefab, parent);
 
@@ -111,7 +103,6 @@ public class EditorLevelSelection : MonoBehaviour
                 () =>
                 {
                     CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(levelName));
-                    _canvas.interactable = false;
                     _sceneSwitcher.SwitchScene("Redactor");
                 }
                 );
@@ -119,7 +110,6 @@ public class EditorLevelSelection : MonoBehaviour
                 () =>
                 {
                     CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(levelName));
-                    _canvas.interactable = false;
                     _sceneSwitcher.SwitchScene("Game");
                 }
                 );

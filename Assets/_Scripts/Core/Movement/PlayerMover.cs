@@ -24,7 +24,17 @@ public class PlayerMover : Mover
         transform.rotation = Quaternion.Euler(0, GetRotation(direction), 0);
         if (base.TryMove(direction))
         {
-            _anim.SetTrigger("Jump");
+            //_anim.SetTrigger("Jump");
+            GameEvents.PlayerMoved(GridSystem.GetWorldPosition(Position));
+            return true;
+        }
+        return false;
+    }
+    public override bool TrySlide(Vector2Int targetPosition)
+    {
+        if (base.TrySlide(targetPosition))
+        {
+            //_anim.SetTrigger("Jump");
             GameEvents.PlayerMoved(GridSystem.GetWorldPosition(Position));
             return true;
         }

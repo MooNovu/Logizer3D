@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MovableBoxMover : Mover
@@ -6,22 +8,16 @@ public class MovableBoxMover : Mover
     public override bool TryMove(Vector2Int direction)
     {
         Vector2Int targetPosition = Position + direction;
+
         if (_gridSystem.IsCellWalkable(targetPosition, direction))
         {
-            List<GameObject> targetGameObjects = _gridSystem.GetElementsAsGameObjects(targetPosition);
-            foreach (GameObject gameObject in targetGameObjects)
+            if (_gridSystem.IsMovableOnPosition(targetPosition))
             {
-                if (gameObject != null && gameObject.TryGetComponent(out IMovable _))
-                {
-                    direction = -direction;
-                    break;
-                }
+                direction = -direction;
             }
         }
         else direction = -direction;
 
-        if (base.TryMove(direction)) return true;
-
-        return false;
+        return base.TryMove(direction);
     }
 }

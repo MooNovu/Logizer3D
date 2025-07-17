@@ -7,9 +7,9 @@ using Zenject;
 
 public class CameraController : MonoBehaviour
 {
-    private float _overviewDuration = 2.25f;
-    private float _focusExitDuration = 1f;
-    private float _focusPlayerDuration = 1f;
+    private readonly float _overviewDuration = 2.25f;
+    private readonly float _focusExitDuration = 1f;
+    private readonly float _focusPlayerDuration = 1f;
 
     [Inject] private GridSystem _gridSystem;
 
@@ -55,8 +55,8 @@ public class CameraController : MonoBehaviour
 
     private Sequence MoveCameraToOverview()
     {
-        float size = Mathf.Max(maxPos.x - minPos.x, maxPos.z - minPos.z) / 1.5f;
-        float height = size / Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        //float size = Mathf.Max(maxPos.x - minPos.x, maxPos.z - minPos.z) / 1.5f;
+        float height = 15f;//size / Mathf.Tan(_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
 
         Vector3 startPos = new(maxPos.x, height, maxPos.z - 6f);
         Vector3 endPos = new(minPos.x, height, minPos.z - 6f);

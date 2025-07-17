@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -6,13 +8,14 @@ using UnityEngine.UI;
 
 public class LevelEditor : MonoBehaviour
 {
-    [Header("Settings")]
+    [Header("DI")]
     [SerializeField] private Transform _gridRenderer;
+    [SerializeField] private Transform _floorParent;
+    [SerializeField] private Transform _elementParent;
     [SerializeField] private Camera _sceneCamera;
 
-
-    [SerializeField] private EditorSettings _editorSettings;
-    [SerializeField] private EditorButtonCreator _editorButtonCreator;
+    [SerializeField] private EditorSettingsPanel _editorSettings;
+    [SerializeField] private EditorInterfaceManager _editorInterfaceManager;
     [SerializeField] private EventSystem _eventSystem;
     [SerializeField] private GraphicRaycaster _graphicRaycaster;
 
@@ -20,32 +23,43 @@ public class LevelEditor : MonoBehaviour
     [SerializeField] private GridElementsContainer _elementContainer;
     [SerializeField] private GridFloorsContainer _floorContainer;
 
-    private Dictionary<GridElementType, GridElementTypeSO> _getSObyElement = new();
-    private Dictionary<FloorType, GridFloorTypeSO> _getSObyFloor = new();
-
-    private EditorGrid _gameObjectGrid;
-    private EditorInput _editorInput;
-    private int _gridWidth = 0;
-    private int _gridHeight = 0;
-    private Vector2 _pointerPos;
-
     private GridElementTypeSO _selectedElement;
     private GridFloorTypeSO _selectedFloor;
+
     private EditorSelectedType _selectedType = EditorSelectedType.Floors;
     private RedactorTool _redactorTool = RedactorTool.Create;
+    private Dictionary<RedactorTool, Action<Vector2Int>> _toolActions;
+
+    private IReadOnlyDictionary<GridElementType, GridElementTypeSO> _elementTypeToSO;
+    private IReadOnlyDictionary<FloorType, GridFloorTypeSO> _floorTypeToSO;
+
+    private EditorGrid _editorGrid;
+    private EditorInput _editorInput;
+    private Vector2 _pointerPos;
 
     private void Awake()
     {
-        foreach (GridElementTypeSO element in _elementContainer.AllElements)
-        {
-            _getSObyElement.Add(element.Type, element);
-        }
-        foreach (GridFloorTypeSO floor in _floorContainer.AllFloors)
-        {
-            _getSObyFloor.Add(floor.Type, floor);
-        }
+        _elementTypeToSO = _elementContainer.AllElements.ToDictionary(x => x.Type);
+        _floorTypeToSO = _floorContainer.AllFloors.ToDictionary(x => x.Type);
 
-        GameEvents.OnInitializeEditor += HandleInitializeEditor;
+        _toolActions = new()
+        {
+            [RedactorTool.Create] = RedactorCreate,
+            [RedactorTool.Edit] = RedactorEdit,
+            [RedactorTool.Delete] = RedactorDelete
+        };
+
+
+        Subscribe();
+    }
+    private void OnDisable()
+    {
+        Unsubscribe();
+    }
+    #region Îáðàáîò÷èêè & Ïîäïèñêè íà ñîáûòèÿ
+    private void Subscribe()
+    {
+        GameEvents.OnInitializeEditor += InitializeGrid;
         _editorInput = new();
         _editorInput.Editor.Click.performed += PointerTools;
         _editorInput.Enable();
@@ -53,35 +67,30 @@ public class LevelEditor : MonoBehaviour
         GameEvents.OnElementChange += HandleElementChange;
         GameEvents.OnFloorChange += HandleFloorChange;
     }
-    private void OnDisable()
+    private void Unsubscribe()
     {
-        GameEvents.OnInitializeEditor -= HandleInitializeEditor;
+        GameEvents.OnInitializeEditor -= InitializeGrid;
         _editorInput.Editor.Click.performed -= PointerTools;
         _editorInput.Disable();
 
         GameEvents.OnElementChange -= HandleElementChange;
         GameEvents.OnFloorChange -= HandleFloorChange;
     }
-    #region Îáðàáîò÷èêè
-    private void HandleInitializeEditor(LevelData levelData)
-    {
-        _gridWidth = levelData.width;
-        _gridHeight = levelData.height;
-        InitializeGrid(levelData);
-    }
     private void HandleElementChange(GridElementTypeSO el) => _selectedElement = el;
     private void HandleFloorChange(GridFloorTypeSO fl) => _selectedFloor = fl;
     #endregion
     public void InitializeGrid(LevelData levelData)
     {
-        _gameObjectGrid?.ClearAll();
-
-        _gameObjectGrid = new(levelData, _getSObyElement, _getSObyFloor);
-
-        float offsetW = _gridWidth % 2 == 0 ? 0.5f : 0f;
-        float offsetH = _gridHeight % 2 == 0 ? 0.5f : 0f;
-        _gridRenderer.position = new(_gridWidth / 2 - offsetW, 2, _gridHeight / 2 - offsetH);
-        _gridRenderer.localScale = new(_gridWidth, _gridHeight, 1);
+        _editorGrid?.ClearAll();
+        _editorGrid = new(levelData, _elementParent, _floorParent, _elementTypeToSO, _floorTypeToSO);
+        ÑonfigureGridRendrer(levelData.width, levelData.height);
+    }
+    private void ÑonfigureGridRendrer(int width, int height)
+    {
+        float offsetW = width % 2 == 0 ? 0.5f : 0f;
+        float offsetH = height % 2 == 0 ? 0.5f : 0f;
+        _gridRenderer.position = new(width / 2 - offsetW, 2, height / 2 - offsetH);
+        _gridRenderer.localScale = new(width, height, 1);
     }
 
     private void PointerTools(InputAction.CallbackContext ctx)
@@ -93,21 +102,7 @@ public class LevelEditor : MonoBehaviour
         {
             Vector2Int cellPos = GridSystem.GetGridPosition(hit.point);
 
-            switch (_redactorTool)
-            {
-                case RedactorTool.Create:
-                    RedactorCreate(cellPos);
-                    break;
-
-                case RedactorTool.Edit:
-                    RedactorEdit(cellPos);
-                    break;
-
-                case RedactorTool.Delete:
-                    RedactorDelete(cellPos);
-                    break;
-
-            }
+            _toolActions[_redactorTool](cellPos);
         }
     }
     private void RedactorCreate(Vector2Int cellPos)
@@ -115,14 +110,14 @@ public class LevelEditor : MonoBehaviour
         if (_selectedType == EditorSelectedType.Floors)
         {
             if (_selectedFloor == null) return;
-            _gameObjectGrid.FloorGrid[cellPos.x, cellPos.y].SetFloor(_selectedFloor);
+            _editorGrid.FloorGrid[cellPos.x, cellPos.y].SetFloor(_selectedFloor);
             return;
         }
 
         if (_selectedType == EditorSelectedType.Elements)
         {
             if (_selectedElement == null) return;
-            _gameObjectGrid.ElementGrid[cellPos.x, cellPos.y].AddElement(_selectedElement);
+            _editorGrid.ElementGrid[cellPos.x, cellPos.y].AddElement(_selectedElement);
             return;
         }
 
@@ -131,12 +126,12 @@ public class LevelEditor : MonoBehaviour
     {
         if (_selectedType == EditorSelectedType.Floors)
         {
-            _editorSettings.OpenSettings(_gameObjectGrid.GetInteractableGridFloor(cellPos));
+            _editorSettings.OpenSettings(_editorGrid.GetInteractableGridFloor(cellPos));
             return;
         }
         if (_selectedType == EditorSelectedType.Elements)
         {
-            List<IGridElement> elements = _gameObjectGrid.GetInteractableGridElements(cellPos);
+            List<IGridElement> elements = _editorGrid.GetInteractableGridElements(cellPos);
             if (elements == null || elements?.Count < 1) return;
             _editorSettings.OpenSettings(elements[0]);
             return;
@@ -146,12 +141,12 @@ public class LevelEditor : MonoBehaviour
     {
         if (_selectedType == EditorSelectedType.Floors)
         {
-            _gameObjectGrid.DeleteFloorFrom(cellPos);
+            _editorGrid.DeleteFloorFrom(cellPos);
             return;
         }
         if (_selectedType == EditorSelectedType.Elements)
         {
-            _gameObjectGrid.DeleteElementsFrom(cellPos);
+            _editorGrid.DeleteElementsFrom(cellPos);
             return;
         }
     }
@@ -169,19 +164,19 @@ public class LevelEditor : MonoBehaviour
                 _redactorTool = RedactorTool.Create;
                 break;
         }
-        _editorButtonCreator.RedactorButtonMode(_redactorTool);
+        _editorInterfaceManager.RedactorButtonMode(_redactorTool);
     }
     public void ToggleSelectedType()
     {
         if (_selectedType == EditorSelectedType.Floors)
         {
             _selectedType = EditorSelectedType.Elements;
-            _editorButtonCreator.ShowElementPanel();
+            _editorInterfaceManager.ShowElementPanel();
         }
         else
         {
             _selectedType = EditorSelectedType.Floors;
-            _editorButtonCreator.ShowFloorPanel();
+            _editorInterfaceManager.ShowFloorPanel();
         }
     }
     private bool IsPointerOverUI()
@@ -199,170 +194,188 @@ public class LevelEditor : MonoBehaviour
 
         return results.Count > 0;
     }
-}
-public class EditorElement
-{
-    public List<GameObject> Elements = new();
-    private readonly Vector3 Position;
-    public EditorElement(Vector3 pos)
+    #region EditorGrid
+    private class EditorElement
     {
-        Position = pos;
-    }
-    public bool AddElement(GridElementTypeSO element, int rotation = 0, ElementState elementState = null)
-    {
-        foreach (GameObject obj in Elements)
+        public List<GameObject> Elements = new();
+        private readonly Vector3 Position;
+        private readonly Transform ElementParent;
+        public EditorElement(Vector3 pos, Transform elementParent)
         {
-            if (obj.GetComponent<IGridElement>().Type == element.Type) return false;
+            Position = pos;
+            ElementParent = elementParent;
         }
-
-        Elements.Add(GenerateElementPrefab(Position, element, rotation, elementState));
-        return true;
-    }
-    public void ClearElements()
-    {
-        foreach (GameObject obj in Elements) GameObject.Destroy(obj);
-        Elements.Clear();
-    }
-
-    private GameObject GenerateElementPrefab(Vector3 position, GridElementTypeSO element, int rotation, ElementState elementState)
-    {
-        GameObject instance = GameObject.Instantiate(element.EditorPrefab, position + Vector3.up, Quaternion.Euler(90, rotation * 90, 0));
-
-        if (elementState != null && instance.TryGetComponent(out ISavable savable))
+        public bool AddElement(GridElementTypeSO element, int rotation = 0, ElementState elementState = null)
         {
-            savable.RestoreState(elementState);
-        }
-
-        return instance;
-    }
-}
-public class EditorFloor
-{
-    public GameObject Floor;
-    private readonly Vector3 Position;
-    public EditorFloor(Vector3 pos)
-    {
-        Position = pos;
-    }
-    public void SetFloor(GridFloorTypeSO floor, int rotation = 0, ElementState floorState = null)
-    {
-        ClearFloor();
-        Floor = GenerateFloorPrefab(Position, floor, rotation, floorState);
-    }
-    public void ClearFloor()
-    {
-        if (Floor != null) GameObject.Destroy(Floor);
-        Floor = null;
-    }
-
-    private GameObject GenerateFloorPrefab(Vector3 position, GridFloorTypeSO floor, int rotation, ElementState floorState)
-    {
-        GameObject instance = GameObject.Instantiate(floor.EditorPrefab, position, Quaternion.Euler(90, rotation * 90, 0));
-
-        if (floorState != null && instance.TryGetComponent(out ISavable savable))
-        {
-            savable.RestoreState(floorState);
-        }
-
-        return instance;
-    }
-}
-public class EditorGrid
-{
-    public EditorFloor[,] FloorGrid;
-    public EditorElement[,] ElementGrid;
-
-    private int _width;
-    private int _height;
-    public EditorGrid(LevelData levelData, 
-        Dictionary<GridElementType, GridElementTypeSO> getSObyElement, 
-        Dictionary<FloorType, GridFloorTypeSO> getSObyFloor)
-    {
-        _width = levelData.width;
-        _height = levelData.height;
-        ElementGrid = new EditorElement[_width, _height];
-        FloorGrid = new EditorFloor[_width, _height];
-        for (int x = 0; x < _width; x++)
-        {
-            for (int y = 0; y < _height; y++)
+            foreach (GameObject obj in Elements)
             {
-                ElementGrid[x, y] = new(new Vector3(x, 1, y));
-                FloorGrid[x, y] = new(new Vector3(x, 1, y));
+                if (obj.GetComponent<IGridElement>().Type == element.Type) return false;
             }
+
+            Elements.Add(GenerateElementPrefab(Position, element, rotation, elementState));
+            return true;
         }
-        foreach (CellData cell in levelData.cells)
+        public void ClearElements()
         {
-            foreach (ElementData data in cell.elements)
+            foreach (GameObject obj in Elements) GameObject.Destroy(obj);
+            Elements.Clear();
+        }
+
+        private GameObject GenerateElementPrefab(Vector3 position, GridElementTypeSO element, int rotation, ElementState elementState)
+        {
+            GameObject instance = GameObject.Instantiate(element.EditorPrefab, position + Vector3.up, Quaternion.Euler(90, rotation * 90, 0), ElementParent);
+
+            if (elementState != null && instance.TryGetComponent(out ISavable savable))
             {
-                if (getSObyElement.TryGetValue(data.elementType, out GridElementTypeSO element))
+                savable.RestoreState(elementState);
+            }
+
+            return instance;
+        }
+    }
+    private class EditorFloor
+    {
+        public GameObject Floor;
+        private readonly Vector3 Position;
+        private readonly Transform FloorParent;
+        public EditorFloor(Vector3 pos, Transform floorParent)
+        {
+            Position = pos;
+            FloorParent = floorParent;
+        }
+        public void SetFloor(GridFloorTypeSO floor, int rotation = 0, ElementState floorState = null)
+        {
+            ClearFloor();
+            Floor = GenerateFloorPrefab(Position, floor, rotation, floorState);
+        }
+        public void ClearFloor()
+        {
+            if (Floor != null) GameObject.Destroy(Floor);
+            Floor = null;
+        }
+
+        private GameObject GenerateFloorPrefab(Vector3 position, GridFloorTypeSO floor, int rotation, ElementState floorState)
+        {
+            GameObject instance = GameObject.Instantiate(floor.EditorPrefab, position, Quaternion.Euler(90, rotation * 90, 0), FloorParent);
+
+            if (floorState != null && instance.TryGetComponent(out ISavable savable))
+            {
+                savable.RestoreState(floorState);
+            }
+
+            return instance;
+        }
+    }
+    private class EditorGrid
+    {
+        public EditorFloor[,] FloorGrid;
+        public EditorElement[,] ElementGrid;
+
+        private readonly int _width;
+        private readonly int _height;
+        public EditorGrid(LevelData levelData,
+            Transform elementParent,
+            Transform floorParent,
+            IReadOnlyDictionary<GridElementType, GridElementTypeSO> elementTypeToSO,
+            IReadOnlyDictionary<FloorType, GridFloorTypeSO> floorTypeToSO)
+        {
+            _width = levelData.width;
+            _height = levelData.height;
+
+            InitializeGrid(elementParent, floorParent);
+
+            RestoreGridFromLevelData(levelData, elementTypeToSO, floorTypeToSO);
+        }
+        public List<IGridElement> GetInteractableGridElements(Vector2Int gridPosition)
+        {
+            if (IsValidGridPosition(gridPosition))
+            {
+                List<IGridElement> interactable = new();
+                foreach (GameObject el in ElementGrid[gridPosition.x, gridPosition.y].Elements)
                 {
-                    ElementGrid[cell.x, cell.y].AddElement(element, data.elementRotation, data.ElementState);
+                    IGridElement elComp = el.GetComponent<IGridElement>();
+                    if (elComp is ISavable _)
+                    {
+                        interactable.Add(elComp);
+                    }
+                }
+                if (interactable.Count < 1) return null;
+                return interactable;
+            }
+            return null;
+        }
+        public IFloor GetInteractableGridFloor(Vector2Int gridPosition)
+        {
+            GameObject floor = FloorGrid[gridPosition.x, gridPosition.y].Floor;
+            if (IsValidGridPosition(gridPosition) && floor != null)
+            {
+                IFloor fl = floor.GetComponent<IFloor>();
+                if (fl is ISavable _)
+                {
+                    return fl;
                 }
             }
-            if (getSObyFloor.TryGetValue(cell.floorType, out GridFloorTypeSO floor))
-            {
-                FloorGrid[cell.x, cell.y].SetFloor(floor, cell.floorRotation, cell.FloorState);
-            }
-            
+            return null;
         }
-    }
-    public List<IGridElement> GetInteractableGridElements(Vector2Int gridPosition)
-    {
-        if (IsValidGridPosition(gridPosition))
+        public void DeleteElementsFrom(Vector2Int gridPosition)
         {
-            List<IGridElement> interactable = new();
-            foreach (GameObject el in ElementGrid[gridPosition.x, gridPosition.y].Elements)
+            if (IsValidGridPosition(gridPosition))
             {
-                IGridElement elComp = el.GetComponent<IGridElement>();
-                if (elComp is ISavable _)
+                ElementGrid[gridPosition.x, gridPosition.y].ClearElements();
+            }
+        }
+        public void DeleteFloorFrom(Vector2Int gridPosition)
+        {
+            if (IsValidGridPosition(gridPosition))
+            {
+                FloorGrid[gridPosition.x, gridPosition.y].ClearFloor();
+            }
+        }
+        public void ClearAll()
+        {
+            foreach (EditorFloor obj in FloorGrid) obj.ClearFloor();
+            foreach (EditorElement obj in ElementGrid) obj.ClearElements();
+        }
+        private bool IsValidGridPosition(Vector2Int gridPosition)
+        {
+            return gridPosition.x >= 0 && gridPosition.x < _width &&
+                   gridPosition.y >= 0 && gridPosition.y < _height;
+        }
+        private void InitializeGrid(Transform elementParent, Transform floorParent)
+        {
+            ElementGrid = new EditorElement[_width, _height];
+            FloorGrid = new EditorFloor[_width, _height];
+            for (int x = 0; x < _width; x++)
+            {
+                for (int y = 0; y < _height; y++)
                 {
-                    interactable.Add(elComp);
+                    ElementGrid[x, y] = new(new Vector3(x, 1, y), elementParent);
+                    FloorGrid[x, y] = new(new Vector3(x, 1, y), floorParent);
                 }
             }
-            if (interactable.Count < 1) return null;
-            return interactable;
         }
-        return null;
-    }
-    public IFloor GetInteractableGridFloor(Vector2Int gridPosition)
-    {
-        GameObject floor = FloorGrid[gridPosition.x, gridPosition.y].Floor;
-        if (IsValidGridPosition(gridPosition) && floor != null)
+        private void RestoreGridFromLevelData(LevelData levelData, 
+            IReadOnlyDictionary<GridElementType, GridElementTypeSO> elementTypeToSO,
+            IReadOnlyDictionary<FloorType, GridFloorTypeSO> floorTypeToSO)
         {
-            IFloor fl = floor.GetComponent<IFloor>();
-            if (fl is ISavable _)
+            foreach (CellData cell in levelData.cells)
             {
-                return fl;
+                foreach (ElementData data in cell.elements)
+                {
+                    if (elementTypeToSO.TryGetValue(data.elementType, out GridElementTypeSO element))
+                    {
+                        ElementGrid[cell.x, cell.y].AddElement(element, data.elementRotation, data.ElementState);
+                    }
+                }
+                if (floorTypeToSO.TryGetValue(cell.floorType, out GridFloorTypeSO floor))
+                {
+                    FloorGrid[cell.x, cell.y].SetFloor(floor, cell.floorRotation, cell.FloorState);
+                }
             }
         }
-        return null;
     }
-    public void DeleteElementsFrom(Vector2Int gridPosition)
-    {
-        if (IsValidGridPosition(gridPosition))
-        {
-            ElementGrid[gridPosition.x, gridPosition.y].ClearElements();
-        }
-    }
-    public void DeleteFloorFrom(Vector2Int gridPosition)
-    {
-        if (IsValidGridPosition(gridPosition))
-        {
-            FloorGrid[gridPosition.x, gridPosition.y].ClearFloor();
-        }
-    }
-    private bool IsValidGridPosition(Vector2Int gridPosition)
-    {
-        return gridPosition.x >= 0 && gridPosition.x < _width &&
-               gridPosition.y >= 0 && gridPosition.y < _height;
-    }
-    public void ClearAll()
-    {
-        foreach (EditorFloor obj in FloorGrid) obj.ClearFloor();
-        foreach (EditorElement obj in ElementGrid) obj.ClearElements();
-    }
+    #endregion
 }
-
 public enum EditorSelectedType
 {
     Floors,
