@@ -8,7 +8,22 @@ public class LoadingScreen : MonoBehaviour
     [SerializeField] private GameObject _bg;
     [SerializeField] private GameObject _blocker;
 
-    private readonly float duration = 0.5f;
+    private Material _transitionMaterial;
+    private Material TransitionMaterial
+    {
+        get
+        {
+            if (_transitionMaterial == null)
+            {
+                Image image = _bg.GetComponent<Image>();
+                if (image != null)
+                    _transitionMaterial = image.material;
+            }
+            return _transitionMaterial;
+        }
+    }
+
+    private readonly float duration = 0.4f;
     private void Awake()
     {
         UIEvents.OnLoadingScreenAnimationStart += StartAnimation;
@@ -26,12 +41,22 @@ public class LoadingScreen : MonoBehaviour
     public void StartAnimation()
     {
         SetActives(true);
-        _bg.GetComponent<RectTransform>().DOScale(Vector3.one, duration).From(Vector3.zero);
+        TransitionMaterial.SetFloat("_Progress", 0f);
+        TransitionMaterial.SetFloat("_IsOpen", 1f);
+        DOVirtual.Float(0f, 2f, duration, value =>
+        {
+            TransitionMaterial.SetFloat("_Progress", value);
+        }).SetDelay(0.1f).SetEase(Ease.InExpo);
     }
     public void EndAnimation()
     {
         SetActives(true);
-        _bg.GetComponent<RectTransform>().DOScale(Vector3.zero, duration).From(Vector3.one).OnComplete(() => SetActives(false));
+        TransitionMaterial.SetFloat("_Progress", 0f);
+        TransitionMaterial.SetFloat("_IsOpen", 0f);
+        DOVirtual.Float(0f, 2f, duration, value =>
+        {
+            TransitionMaterial.SetFloat("_Progress", value);
+        }).SetDelay(0.1f).SetEase(Ease.InExpo).OnComplete(() => SetActives(false));
     }
     private void SetActives(bool state)
     {
