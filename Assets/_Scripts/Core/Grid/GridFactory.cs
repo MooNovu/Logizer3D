@@ -59,43 +59,68 @@ public class GridFactory
 
     public GameObject CreateCombineObject(List<GameObject> staticObjects)
     {
-        List<MeshFilter> meshFilters = new();
-        List<Material> materials = new();
+        Dictionary<Material, List<CombineInstance>> materialGroups = new();
 
         foreach (var obj in staticObjects)
         {
-            var filter = obj.GetComponentInChildren<MeshFilter>();
-            if (filter != null)
+            MeshFilter meshFilter = obj.GetComponentInChildren<MeshFilter>();
+            MeshRenderer meshRenderer = obj.GetComponentInChildren<MeshRenderer>();
+
+            if (meshFilter == null || meshRenderer == null) continue;
+
+            Mesh mesh = meshFilter.sharedMesh;
+            Material[] materials = meshRenderer.sharedMaterials;
+
+            for (int subMeshIndex = 0; subMeshIndex < mesh.subMeshCount; subMeshIndex++)
             {
-                meshFilters.Add(filter);
-                materials.Add(obj.GetComponentInChildren<MeshRenderer>().material);
+                Material material = materials[subMeshIndex % materials.Length];
+
+                if (!materialGroups.ContainsKey(material))
+                    materialGroups[material] = new List<CombineInstance>();
+
+                materialGroups[material].Add(new CombineInstance
+                {
+                    mesh = mesh,
+                    subMeshIndex = subMeshIndex,
+                    transform = meshFilter.transform.localToWorldMatrix
+                });
             }
         }
 
-        if (meshFilters.Count > 0)
+        if (materialGroups.Count == 0) return null;
+
+        List<CombineInstance> finalCombines = new();
+        List<Material> finalMaterials = new(materialGroups.Keys);
+
+        foreach (var material in finalMaterials)
         {
-            CombineInstance[] combine = new CombineInstance[meshFilters.Count];
-
-            for (int i = 0; i < meshFilters.Count; i++)
+            Mesh groupedMesh = new();
+            groupedMesh.CombineMeshes(
+                materialGroups[material].ToArray(),
+                true,
+                true
+            );
+            finalCombines.Add(new CombineInstance
             {
-                combine[i].mesh = meshFilters[i].sharedMesh;
-                combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-            }
-
-            Mesh combinedMesh = new Mesh();
-            combinedMesh.CombineMeshes(combine);
-
-            GameObject combinedObject = new GameObject("CombineObject");
-            combinedObject.AddComponent<MeshFilter>().mesh = combinedMesh;
-            var renderer = combinedObject.AddComponent<MeshRenderer>();
-
-            renderer.material = materials[0];
-
-            combinedObject.AddComponent<MeshCollider>();
-            combinedObject.transform.SetParent(_floorParent);
-            return combinedObject;
+                mesh = groupedMesh,
+                subMeshIndex = 0,
+                transform = Matrix4x4.identity
+            });
         }
-        return null;
+
+        Mesh combinedMesh = new();
+        combinedMesh.CombineMeshes(
+            finalCombines.ToArray(),
+            false,
+            false
+        );
+
+        GameObject combinedObject = new("CombinedObject");
+        combinedObject.AddComponent<MeshFilter>().mesh = combinedMesh;
+        combinedObject.AddComponent<MeshRenderer>().sharedMaterials = finalMaterials.ToArray();
+        combinedObject.transform.SetParent(_floorParent);
+
+        return combinedObject;
     }
     public GameObject GetPrefabForGridElement(GridElementType type)
     {

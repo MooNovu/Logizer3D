@@ -20,6 +20,8 @@ public class CameraController : MonoBehaviour
     private Vector3 minPos;
     private Vector3 maxPos;
 
+    private Tween _anim;
+
     private void Awake()
     {
         _camera = GetComponent<Camera>();
@@ -32,7 +34,7 @@ public class CameraController : MonoBehaviour
     private void FollowPlayer(Vector3 pos)
     {
         Vector3 targetPosition = new(pos.x - 3.4f, 10f, pos.z - 5.6f);
-        _camera.transform.DOMove(targetPosition, _focusPlayerDuration).SetEase(Ease.OutQuad);
+        _anim = _camera.transform.DOMove(targetPosition, _focusPlayerDuration).SetEase(Ease.OutQuad);
     }
     public IEnumerator CameraSequence()
     {
@@ -43,13 +45,14 @@ public class CameraController : MonoBehaviour
         FindSpawnAndExitPosition();
 
         // 1. Показываем весь уровень
+        _anim.Complete();
         yield return MoveCameraToOverview().WaitForCompletion();
 
-
+        _anim.Complete();
         yield return FocusOnExit().WaitForCompletion();
 
-
         // 2. Перемещаемся к игроку
+        _anim.Complete();
         yield return FocusOnPlayer().WaitForCompletion();
     }
 
@@ -66,7 +69,7 @@ public class CameraController : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
 
         sequence.Append(_camera.transform.DOMove(endPos, _overviewDuration).SetEase(Ease.InOutQuad));
-
+        _anim = sequence;
         return sequence;
     }
     private Sequence FocusOnExit()
@@ -78,7 +81,7 @@ public class CameraController : MonoBehaviour
         sequence.Append(_camera.transform.DOMove(targetPosition, _focusExitDuration).SetEase(Ease.InOutQuad));
         sequence.Join(_camera.transform.DORotateQuaternion(Quaternion.Euler(45f, 30f, 0), _focusExitDuration));
         sequence.AppendInterval(0.5f);
-
+        _anim = sequence;
         return sequence;
     }
 
@@ -89,7 +92,7 @@ public class CameraController : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         sequence.Append(_camera.transform.DOMove(targetPosition, _focusPlayerDuration).SetEase(Ease.InOutQuad));
         sequence.Join(_camera.transform.DORotateQuaternion(Quaternion.Euler(45f, 30f, 0), _focusPlayerDuration));
-
+        _anim = sequence;
         return sequence;
     }
 

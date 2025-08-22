@@ -14,7 +14,7 @@ public class MobileInput : MonoBehaviour, IInputProvider, IPointerDownHandler, I
 
     private readonly float _swipeThreshold = 50f;
     private readonly float _repeatDelay = 0.3f;
-    private readonly float _repeatInterval = 0.15f;
+    private readonly float _repeatInterval = 0.25f;
 
     private Vector2 _touchStartPos;
     private Vector2Int _currentDirection;

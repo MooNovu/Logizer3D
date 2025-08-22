@@ -21,7 +21,7 @@ public static class LevelList
 
     public static int GetUserLevelsCount()
     {
-        TextAsset[] levelFiles = Resources.LoadAll<TextAsset>(SaveManager.UserLevelPath);
+        TextAsset[] levelFiles = Resources.LoadAll<TextAsset>(SaveFileManager.UserLevelPath);
 
         return levelFiles.Count();
     }
@@ -29,13 +29,13 @@ public static class LevelList
     {
         List<string> levelNames = new();
 
-        if (!Directory.Exists(SaveManager.UserLevelPath))
+        if (!Directory.Exists(SaveFileManager.UserLevelPath))
         {
-            Directory.CreateDirectory(SaveManager.UserLevelPath);
+            Directory.CreateDirectory(SaveFileManager.UserLevelPath);
             return levelNames;
         }
 
-        string[] jsonFiles = Directory.GetFiles(SaveManager.UserLevelPath, "*.json");
+        string[] jsonFiles = Directory.GetFiles(SaveFileManager.UserLevelPath, "*.json");
 
         foreach (string filePath in jsonFiles)
         {
@@ -46,11 +46,11 @@ public static class LevelList
     }
     public static LevelData GetUserLevel(string levelName)
     {
-        string filePath = Path.Combine(SaveManager.UserLevelPath, $"{levelName}.json");
+        string filePath = Path.Combine(SaveFileManager.UserLevelPath, $"{levelName}.json");
 
-        if (!Directory.Exists(SaveManager.UserLevelPath))
+        if (!Directory.Exists(SaveFileManager.UserLevelPath))
         {
-            Directory.CreateDirectory(SaveManager.UserLevelPath);
+            Directory.CreateDirectory(SaveFileManager.UserLevelPath);
             return null;
         }
 

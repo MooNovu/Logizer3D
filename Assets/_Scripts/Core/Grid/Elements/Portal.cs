@@ -7,20 +7,21 @@ using UnityEngine;
 using Zenject;
 using static UnityEngine.GraphicsBuffer;
 
-public class Portal : GridElement, ISavable, IInteractable, IEditable, ITransformChanger, ISpecialAnimation, IExitSpecialAnimation
+public class Portal : GridElement, ISavable, IInteractable, IEditable, ITransformChanger, ISpecialAnimation
 {
     [Inject] private readonly GridSystem _gridSystem;
     public string EditorTitle => "Portal";
     public override GridElementType Type => GridElementType.Portal;
+    public MoverAnimation EnterAnimation() => MoverAnimation.ScaleToZero;
     public int PortalId;
     public int TargetPortalId;
 
     private readonly Dictionary<int, Vector2Int> portalTeleportOffset = new()
     {
         {0, new Vector2Int(0, -1) },
-        {1, new Vector2Int(-1, 0) },
+        {1, new Vector2Int(1, 0) },
         {2, new Vector2Int(0, 1) },
-        {3, new Vector2Int(1, 0) }
+        {3, new Vector2Int(-1, 0) }
     };
 
     private Portal targetPortal;
@@ -46,7 +47,7 @@ public class Portal : GridElement, ISavable, IInteractable, IEditable, ITransfor
         Vector2Int offset = GetPortalTeleportOffset(movable.LastMoveVector, targetPortal.Rotation);
         movable.PreviousPosition = targetPortal.GridPosition;
         movable.TryTeleport(targetPortal.GridPosition, false);
-        movable.SetNextMoveAnimation(this);
+        movable.SetNextMoveAnimation(MoverAnimation.ScaleToNormal);
         movable.TryMove(offset);
     }
     private Vector2Int GetPortalTeleportOffset(Vector2Int lastMove, int rotation)
@@ -102,20 +103,6 @@ public class Portal : GridElement, ISavable, IInteractable, IEditable, ITransfor
             }
         }
         return null;
-    }
-
-    public Sequence GetAnimation(Transform targetTransform, Vector2Int targetPosition)
-    {
-        return DOTween.Sequence()
-            .Append(targetTransform.DOMove(GridSystem.GetWorldPosition(targetPosition), 0.25f)).
-            Join(targetTransform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InQuad));
-    }
-
-    public Sequence GetExitAnimation(Transform targetTransform, Vector2Int targetPosition)
-    {
-        return DOTween.Sequence()
-            .Append(targetTransform.DOMove(GridSystem.GetWorldPosition(targetPosition), 0.25f)).
-            Join(targetTransform.DOScale(Vector3.one, 0.25f).SetEase(Ease.InQuad));
     }
 }
 

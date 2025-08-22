@@ -9,5 +9,5 @@ public interface IMovable
     bool TrySlide(Vector2Int targetPosition);
     bool TryTeleport(Vector2Int targetPosition, bool Inretact = true);
     void UndoLastMove();
-    void SetNextMoveAnimation(IExitSpecialAnimation anim);
+    void SetNextMoveAnimation(MoverAnimation anim);
 }

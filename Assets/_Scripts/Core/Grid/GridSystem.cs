@@ -111,22 +111,22 @@ public class GridSystem
 
         return gameObjects;
     }
-    public bool TryGetSpecialAnimation(Vector2Int gridPosition, out ISpecialAnimation specialAnim)
+    public bool TryGetSpecialAnimation(Vector2Int gridPosition, out MoverAnimation specialAnim)
     {
-        specialAnim = null;
+        specialAnim = MoverAnimation.None;
         var cell = GetCell(gridPosition);
         if (cell == null) return false;
         foreach (IGridElement el in cell.Elements)
         {
             if (el is ISpecialAnimation se)
             {
-                specialAnim = se;
+                specialAnim = se.EnterAnimation();
                 return true;
             }
         }
         if (cell.Floor is ISpecialAnimation sf)
         {
-            specialAnim = sf;
+            specialAnim = sf.EnterAnimation();
             return true;
         }
         return false;

@@ -34,5 +34,6 @@ public enum GridElementType
     Player,
     Key,
     PressurePlate,
-    Door
+    Door,
+    Candy
 }

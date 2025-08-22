@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using UnityEngine;
 using Zenject;
@@ -20,6 +21,8 @@ public class LevelLoader : MonoBehaviour
         GameEvents.OnLevelLoad -= LoadLevel;
         GameEvents.OnLevelNextLoad -= LoadNextLevel;
         GameEvents.OnLevelReload -= RetryLevel;
+        StopAllCoroutines();
+        DOTween.Clear();
     }
     public void LevelCompleted()
     {
@@ -42,12 +45,15 @@ public class LevelLoader : MonoBehaviour
     }
     public void RetryLevel()
     {
+        StopAllCoroutines();
         StartCoroutine(RetryLevelSequence());
     }
 
     public IEnumerator LoadingLevelSequence(LevelData lvl)
     {
-        Debug.Log($"Starting Loading level {CurrentLevelHandler.LevelId}");
+        GameEvents.ClearCandies();
+        _loadManager.ClearLevel();
+        //Debug.Log($"Starting Loading level {CurrentLevelHandler.LevelId}");
         _loadManager.LoadLevel(lvl);
         yield return null;
 
@@ -56,14 +62,19 @@ public class LevelLoader : MonoBehaviour
         yield return _loadManager.SpawnAnimation();
 
         _loadManager.OptimizeStaticObjects();
+        GameEvents.LevelFullLoaded();
     }
     public IEnumerator RetryLevelSequence()
     {
-        yield return _loadManager.ClearLevel();
+        UIEvents.LoadingScreenAnimationStart();
+        yield return new WaitForSeconds(0.5f);
+        UIEvents.LoadingScreenAnimationEnd();
+        GameEvents.ClearCandies();
+        _loadManager.ClearLevel();
         _loadManager.RemovePlayer();
 
         LevelData lvl = CurrentLevelHandler.LevelData;
-        Debug.Log($"Reload level {lvl.Name}");
+        //Debug.Log($"Reload level {lvl.Name}");
         _loadManager.LoadLevel(lvl);
         yield return null;
 
@@ -72,10 +83,11 @@ public class LevelLoader : MonoBehaviour
         yield return _loadManager.SpawnAnimation();
 
         _loadManager.OptimizeStaticObjects();
+        GameEvents.LevelFullLoaded();
     }
     public IEnumerator CompleteLevelSequence()
     {
-        yield return _loadManager.ClearLevel();
+        yield return null;//_loadManager.ClearLevel();
         _loadManager.RemovePlayer();
         UIEvents.ShowResaulMenu();
     }

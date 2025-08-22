@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using DG.Tweening;
+using Unity.VisualScripting;
 
 public class LoadManager
 {
@@ -106,7 +107,7 @@ public class LoadManager
         GameObject combineInstance = _gridFactory.CreateCombineObject(staticObjects);
         if (combineInstance != null)
         {
-            foreach (var obj in staticObjects) obj.SetActive(false);
+            foreach (var obj in staticObjects) GameObject.Destroy(obj);//obj.SetActive(false);
         }
         Resources.UnloadUnusedAssets();
         if (_combineObject != null) GameObject.Destroy(_combineObject);
@@ -137,21 +138,20 @@ public class LoadManager
         }
         yield return new WaitForSeconds(_duration);
     }
-    public IEnumerator ClearLevel()
+    public void ClearLevel()
     {
-        float delay = _timeToSpawn / allObjects.Count;
-        GameObject.Destroy(_combineObject);
+        if (_combineObject != null) GameObject.Destroy(_combineObject);
+
         _combineObject = null;
-        foreach (var obj in staticObjects) obj.SetActive(true);
 
-        yield return null;
-        foreach (GameObject obj in allObjects)
-        {
-            obj.transform.DOScale(Vector3.zero, _duration).SetEase(Ease.OutQuart);
-
-            yield return new WaitForSeconds(delay);
-        }
-        yield return new WaitForSeconds(_duration);
-        foreach (var obj in allObjects) GameObject.Destroy(obj);
+        if (allObjects.Count > 0)
+            foreach (var obj in allObjects)
+            {
+                if (obj != null)
+                {
+                    DOTween.Kill(obj.transform);
+                    GameObject.Destroy(obj);
+                }
+            }
     }
 }

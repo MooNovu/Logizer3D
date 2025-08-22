@@ -1,8 +1,13 @@
+using DG.Tweening;
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class CloseUiPanel : MonoBehaviour
 {
+    public UnityEvent PanelClosed;
+    public UnityEvent<Sequence> PanelClosedSequence;
     private GameObject _backgroundPanel;
     public void CreateBackgroundPanel()
     {
@@ -11,7 +16,10 @@ public class CloseUiPanel : MonoBehaviour
         var canvas = GetTopmostCanvas(transform);
         _backgroundPanel.transform.SetParent(canvas.transform, false);
 
-        _backgroundPanel.transform.SetSiblingIndex(transform.GetSiblingIndex());
+        if (canvas.gameObject == this.gameObject)
+            _backgroundPanel.transform.SetSiblingIndex(0);
+        else
+            _backgroundPanel.transform.SetSiblingIndex(transform.GetSiblingIndex());
 
         var bgRect = _backgroundPanel.AddComponent<RectTransform>();
         var bgImage = _backgroundPanel.AddComponent<Image>();
@@ -21,19 +29,27 @@ public class CloseUiPanel : MonoBehaviour
         bgRect.anchorMax = Vector2.one;
         bgRect.offsetMin = Vector2.zero;
         bgRect.offsetMax = Vector2.zero;
-        bgImage.color = new Color(0, 0, 0, 0.2f);
-
+        bgImage.color = new Color(0, 0, 0, 0f);
+        bgImage.DOFade(0.4f, 0.25f);
+        bgButton.transition = Selectable.Transition.None;
 
         bgButton.onClick.AddListener(() => 
         {
-            UIAnimationHandler.CloseAnimation(gameObject);
+            bgButton.interactable = false;
+            ClosePanel();
         });
     }
-    public void DestroyPanel()
+    public void ClosePanel()
+    {
+        Sequence seq = GetComponent<UiAnimator>().CloseAnimation();
+        PanelClosed?.Invoke();
+        PanelClosedSequence?.Invoke(seq);
+    }
+    public void DestroyBlackBG()
     {
         if (_backgroundPanel != null)
         {
-            Destroy(_backgroundPanel);
+            _backgroundPanel.GetComponent<Image>().DOFade(0f, 0.25f).OnComplete( () => Destroy(_backgroundPanel));
         }
     }
     private Canvas GetTopmostCanvas(Transform child)

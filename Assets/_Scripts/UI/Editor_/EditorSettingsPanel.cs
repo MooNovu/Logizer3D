@@ -10,6 +10,8 @@ public class EditorSettingsPanel : MonoBehaviour
     [SerializeField] private Transform _parent;
     [SerializeField] private GameObject _parameterPrefab;
 
+    [SerializeField] private UiAnimator _settingsAnimator;
+
     private List<UiParameter> _params = new();
 
     private const int _maxParamsCount = 2;
@@ -51,12 +53,12 @@ public class EditorSettingsPanel : MonoBehaviour
     }
     private void ShowPanel()
     {
-        UIAnimationHandler.OpenAnimation(gameObject);
+        ClearParams();
+        _settingsAnimator.OpenAnimation();
     }
     public void ClosePanel()
     {
-        UIAnimationHandler.CloseAnimation(gameObject);
-        ClearParams();
+        _settingsAnimator.CloseAnimation();
     }
     private void ClearParams()
     {

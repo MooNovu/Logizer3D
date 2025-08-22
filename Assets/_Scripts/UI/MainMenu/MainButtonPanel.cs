@@ -1,38 +1,38 @@
 using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 
 public class MainButtonPanel : MonoBehaviour
 {
     [Header("Main Panel")]
-    [SerializeField] private GameObject _mainPanel;
+    [SerializeField] private UiAnimator _mainPanel;
 
     [Header("Level Selection Panel")]
-    [SerializeField] private GameObject _levelSelectionPanel;
+    [SerializeField] private UiAnimator _levelSelectionPanel;
 
     [Header("Redactor Level Selection Panel")]
-    [SerializeField] private GameObject _redactorLevelSelectionPanel;
+    [SerializeField] private UiAnimator _redactorLevelSelectionPanel;
+    public void OpenMainMenu(Sequence seq) => StartCoroutine(OpenMain(seq));
+    public void OpenLevelSelection() => StartCoroutine(OpenLevelSel());
+    public void OpenRedactorLevelSelection() => StartCoroutine(OpenRedactorLevelSel());
 
-    private void Start()
-    {
-        UIAnimationHandler.CloseAnimation(_levelSelectionPanel, true);
-        UIAnimationHandler.CloseAnimation(_redactorLevelSelectionPanel, true);
-    }
 
-    public void OpenLevelSelection()
+
+
+    private IEnumerator OpenMain(Sequence seq)
     {
-        UIAnimationHandler.OpenAnimation(_levelSelectionPanel);
+        yield return seq.WaitForCompletion();
+        _mainPanel.OpenAnimation();
     }
-    public void CloseLevelSelection()
+    private IEnumerator OpenLevelSel()
     {
-        UIAnimationHandler.CloseAnimation(_levelSelectionPanel);
+        yield return _mainPanel.CloseAnimation().WaitForCompletion();
+        _levelSelectionPanel.OpenAnimation();
     }
-    public void OpenRedactorLevelSelection()
+    private IEnumerator OpenRedactorLevelSel()
     {
-        UIAnimationHandler.OpenAnimation(_redactorLevelSelectionPanel);
-    }
-    public void CloseRedactorLevelSelection()
-    {
-        UIAnimationHandler.CloseAnimation(_redactorLevelSelectionPanel);
+        yield return _mainPanel.CloseAnimation().WaitForCompletion();
+        _redactorLevelSelectionPanel.OpenAnimation();
     }
     public void Quit()
     {

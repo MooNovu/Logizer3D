@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,8 @@ public class LevelEditor : MonoBehaviour
     [SerializeField] private Camera _sceneCamera;
 
     [SerializeField] private EditorSettingsPanel _editorSettings;
-    [SerializeField] private EditorInterfaceManager _editorInterfaceManager;
     [SerializeField] private EventSystem _eventSystem;
-    [SerializeField] private GraphicRaycaster _graphicRaycaster;
+    [SerializeField] private List<GraphicRaycaster> _graphicRaycasters;
 
     [Header("Data")]
     [SerializeField] private GridElementsContainer _elementContainer;
@@ -30,26 +30,19 @@ public class LevelEditor : MonoBehaviour
     private RedactorTool _redactorTool = RedactorTool.Create;
     private Dictionary<RedactorTool, Action<Vector2Int>> _toolActions;
 
-    private IReadOnlyDictionary<GridElementType, GridElementTypeSO> _elementTypeToSO;
-    private IReadOnlyDictionary<FloorType, GridFloorTypeSO> _floorTypeToSO;
-
     private EditorGrid _editorGrid;
     private EditorInput _editorInput;
     private Vector2 _pointerPos;
 
     private void Awake()
     {
-        _elementTypeToSO = _elementContainer.AllElements.ToDictionary(x => x.Type);
-        _floorTypeToSO = _floorContainer.AllFloors.ToDictionary(x => x.Type);
-
         _toolActions = new()
         {
-            [RedactorTool.Create] = RedactorCreate,
-            [RedactorTool.Edit] = RedactorEdit,
-            [RedactorTool.Delete] = RedactorDelete
+            [RedactorTool.Create] = Create,
+            [RedactorTool.Edit] = Edit,
+            [RedactorTool.Delete] = Delete,
+            [RedactorTool.Rotate] = Rotate
         };
-
-
         Subscribe();
     }
     private void OnDisable()
@@ -66,6 +59,8 @@ public class LevelEditor : MonoBehaviour
 
         GameEvents.OnElementChange += HandleElementChange;
         GameEvents.OnFloorChange += HandleFloorChange;
+        GameEvents.OnRedactorToolChange += HandleRedactorModeChange;
+        GameEvents.OnSelectedTypeChange += HandleSelectedTypeChange;
     }
     private void Unsubscribe()
     {
@@ -75,14 +70,22 @@ public class LevelEditor : MonoBehaviour
 
         GameEvents.OnElementChange -= HandleElementChange;
         GameEvents.OnFloorChange -= HandleFloorChange;
+        GameEvents.OnRedactorToolChange -= HandleRedactorModeChange;
+        GameEvents.OnSelectedTypeChange -= HandleSelectedTypeChange;
     }
     private void HandleElementChange(GridElementTypeSO el) => _selectedElement = el;
     private void HandleFloorChange(GridFloorTypeSO fl) => _selectedFloor = fl;
+    private void HandleRedactorModeChange(RedactorTool tool) => _redactorTool = tool;
+    private void HandleSelectedTypeChange(EditorSelectedType type) => _selectedType = type;
     #endregion
     public void InitializeGrid(LevelData levelData)
     {
         _editorGrid?.ClearAll();
-        _editorGrid = new(levelData, _elementParent, _floorParent, _elementTypeToSO, _floorTypeToSO);
+
+        IReadOnlyDictionary<GridElementType, GridElementTypeSO> elementTypeToSO = _elementContainer.AllElements.ToDictionary(x => x.Type);
+        IReadOnlyDictionary<FloorType, GridFloorTypeSO> floorTypeToSO = _floorContainer.AllFloors.ToDictionary(x => x.Type);
+
+        _editorGrid = new(levelData, _elementParent, _floorParent, elementTypeToSO, floorTypeToSO);
         ÑonfigureGridRendrer(levelData.width, levelData.height);
     }
     private void ÑonfigureGridRendrer(int width, int height)
@@ -105,7 +108,7 @@ public class LevelEditor : MonoBehaviour
             _toolActions[_redactorTool](cellPos);
         }
     }
-    private void RedactorCreate(Vector2Int cellPos)
+    private void Create(Vector2Int cellPos)
     {
         if (_selectedType == EditorSelectedType.Floors)
         {
@@ -122,7 +125,7 @@ public class LevelEditor : MonoBehaviour
         }
 
     }
-    private void RedactorEdit(Vector2Int cellPos)
+    private void Edit(Vector2Int cellPos)
     {
         if (_selectedType == EditorSelectedType.Floors)
         {
@@ -137,7 +140,7 @@ public class LevelEditor : MonoBehaviour
             return;
         }
     }
-    private void RedactorDelete(Vector2Int cellPos)
+    private void Delete(Vector2Int cellPos)
     {
         if (_selectedType == EditorSelectedType.Floors)
         {
@@ -150,38 +153,22 @@ public class LevelEditor : MonoBehaviour
             return;
         }
     }
-    public void ToggleRedactorMode()
-    {
-        switch (_redactorTool) 
-        {
-            case RedactorTool.Create:
-                _redactorTool = RedactorTool.Edit;
-                break;
-            case RedactorTool.Edit:
-                _redactorTool = RedactorTool.Delete;
-                break;
-            case RedactorTool.Delete:
-                _redactorTool = RedactorTool.Create;
-                break;
-        }
-        _editorInterfaceManager.RedactorButtonMode(_redactorTool);
-    }
-    public void ToggleSelectedType()
+    private void Rotate(Vector2Int cellPos)
     {
         if (_selectedType == EditorSelectedType.Floors)
         {
-            _selectedType = EditorSelectedType.Elements;
-            _editorInterfaceManager.ShowElementPanel();
+            _editorGrid.FloorGrid[cellPos.x, cellPos.y].Rotate();
+            return;
         }
-        else
+        if (_selectedType == EditorSelectedType.Elements)
         {
-            _selectedType = EditorSelectedType.Floors;
-            _editorInterfaceManager.ShowFloorPanel();
+            _editorGrid.ElementGrid[cellPos.x, cellPos.y].Rotate();
+            return;
         }
     }
     private bool IsPointerOverUI()
     {
-        if (_graphicRaycaster == null || _eventSystem == null)
+        if (_graphicRaycasters == null || _eventSystem == null)
             return false;
 
         PointerEventData pointerData = new(_eventSystem)
@@ -190,8 +177,10 @@ public class LevelEditor : MonoBehaviour
         };
 
         List<RaycastResult> results = new();
-        _graphicRaycaster.Raycast(pointerData, results);
-
+        foreach (var _reycaster in _graphicRaycasters)
+        {
+            _reycaster.Raycast(pointerData, results);
+        }
         return results.Count > 0;
     }
     #region EditorGrid
@@ -211,13 +200,30 @@ public class LevelEditor : MonoBehaviour
             {
                 if (obj.GetComponent<IGridElement>().Type == element.Type) return false;
             }
-
-            Elements.Add(GenerateElementPrefab(Position, element, rotation, elementState));
+            var el = GenerateElementPrefab(Position, element, rotation, elementState);
+            el.transform.DOScale(Vector3.one, 0.25f).From(Vector3.zero);
+            Elements.Add(el);
             return true;
+        }
+        public void Rotate()
+        {
+            foreach (GameObject obj in Elements)
+            {
+                obj.transform.DOComplete();
+                obj.transform.DORotate(new Vector3(0, -90, 0), 0.25f, RotateMode.WorldAxisAdd);
+
+            }
         }
         public void ClearElements()
         {
-            foreach (GameObject obj in Elements) GameObject.Destroy(obj);
+            foreach (GameObject obj in Elements)
+            {
+                obj.transform.DOComplete();
+                obj.transform.DOScale(Vector3.zero, 0.25f).OnComplete(() =>
+                {
+                    GameObject.Destroy(obj);
+                });
+            }
             Elements.Clear();
         }
 
@@ -247,11 +253,23 @@ public class LevelEditor : MonoBehaviour
         {
             ClearFloor();
             Floor = GenerateFloorPrefab(Position, floor, rotation, floorState);
+            Floor.transform.DOScale(Vector3.one, 0.25f).From(Vector3.zero);
+        }
+        public void Rotate()
+        {
+            Floor.transform.DOComplete();
+            Floor.transform.DORotate(new Vector3(0, -90, 0), 0.25f, RotateMode.WorldAxisAdd);
         }
         public void ClearFloor()
         {
-            if (Floor != null) GameObject.Destroy(Floor);
+            if (Floor == null) return;
+            var temp = Floor;
             Floor = null;
+            temp.transform.DOComplete();
+            temp.transform.DOScale(Vector3.zero, 0.25f).OnComplete( () =>
+            {
+                GameObject.Destroy(temp);
+            });
         }
 
         private GameObject GenerateFloorPrefab(Vector3 position, GridFloorTypeSO floor, int rotation, ElementState floorState)
@@ -385,5 +403,6 @@ public enum RedactorTool
 {
     Create,
     Edit,
-    Delete
+    Delete,
+    Rotate
 }

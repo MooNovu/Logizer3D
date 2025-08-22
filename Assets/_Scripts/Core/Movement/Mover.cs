@@ -1,8 +1,8 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
 using Zenject;
 
@@ -15,14 +15,30 @@ public abstract class Mover : MonoBehaviour, IMovable
     public Vector2Int LastMoveVector => Position - PreviousPosition;
 
     protected Tween _animation;
-    protected IExitSpecialAnimation _nextMoveAnimation = null;
+    protected MoverAnimation _nextMoveAnimation = MoverAnimation.None;
+    protected MoverAnimation _currentMoveAnimation = MoverAnimation.None;
+
+    protected Dictionary<MoverAnimation, Action<Vector2Int>> GetAnimation;
+
     protected Vector2Int? _pendingDirection = null;
     protected bool _isAnimationRunning;
+
+    protected const float _animationDuration = 0.25f;
 
     protected virtual void Start()
     {
         Position = GridSystem.GetGridPosition(transform.position);
         thisElement ??= GetComponent<IGridElement>();
+
+        GetAnimation = new()
+        {
+            [MoverAnimation.None] = null,
+            [MoverAnimation.Default] = DefaultAnimation,
+            [MoverAnimation.ScaleToZero] = ScaleToZeroAnimation,
+            [MoverAnimation.ScaleToNormal] = ScaleToNormalAnimation,
+            [MoverAnimation.ToMoverAnimation] = ToMoverAnimation
+        };
+
     }
 
     public virtual bool TryMove(Vector2Int direction)
@@ -53,20 +69,18 @@ public abstract class Mover : MonoBehaviour, IMovable
         Position = newPosition;
 
         _animation.Kill();
-        if (_nextMoveAnimation != null)
+        if (_nextMoveAnimation != MoverAnimation.None)
         {
-            _animation = _nextMoveAnimation.GetExitAnimation(transform, newPosition);
-            _nextMoveAnimation = null;
+            GetAnimation[_nextMoveAnimation](newPosition);
+            _nextMoveAnimation = MoverAnimation.None;
         }
-        else if (_gridSystem.TryGetSpecialAnimation(newPosition, out ISpecialAnimation anim))
+        else if (_gridSystem.TryGetSpecialAnimation(newPosition, out MoverAnimation moverAnim))
         {
-            _animation = anim.GetAnimation(transform, newPosition);
+            GetAnimation[moverAnim](newPosition);
         }
         else
         {
-            _animation = transform.DOMove(GridSystem.GetWorldPosition(newPosition), 0.25f)
-                .SetEase(Ease.InQuad)
-                .From(GridSystem.GetWorldPosition(PreviousPosition));
+            DefaultAnimation(newPosition);
         }
         _gridSystem.TryMoveElement(originalPosition, Position, thisElement);
         yield return _animation.WaitForCompletion();
@@ -141,7 +155,7 @@ public abstract class Mover : MonoBehaviour, IMovable
     {
         TryMove(-LastMoveVector);
     }
-    public virtual void SetNextMoveAnimation(IExitSpecialAnimation anim)
+    public virtual void SetNextMoveAnimation(MoverAnimation anim)
     {
         _nextMoveAnimation = anim;
     }
@@ -180,5 +194,36 @@ public abstract class Mover : MonoBehaviour, IMovable
             interactableFloor.Interact(this);
         }
     }
+    #region Animation
 
+    protected virtual void DefaultAnimation(Vector2Int to)
+    {
+        _animation = transform.DOMove(GridSystem.GetWorldPosition(to), _animationDuration);
+    }
+    protected virtual void ScaleToNormalAnimation(Vector2Int to)
+    {
+        _animation = DOTween.Sequence()
+            .Append(transform.DOMove(GridSystem.GetWorldPosition(to), _animationDuration))
+            .Join(transform.DOScale(Vector3.one, _animationDuration).SetEase(Ease.InQuad));
+    }
+    protected virtual void ScaleToZeroAnimation(Vector2Int to)
+    {
+        _animation = DOTween.Sequence()
+            .Append(transform.DOMove(GridSystem.GetWorldPosition(to), _animationDuration))
+            .Join(transform.DOScale(Vector3.zero, _animationDuration).SetEase(Ease.InQuad));
+    }
+    protected virtual void ToMoverAnimation(Vector2Int to)
+    {
+        DefaultAnimation(to);
+    }
+    #endregion
+}
+
+public enum MoverAnimation
+{
+    None,
+    Default,
+    ScaleToZero, //Portal In
+    ScaleToNormal, // Portal Out
+    ToMoverAnimation
 }

@@ -16,7 +16,7 @@ public class PlayLevelSelection : MonoBehaviour
     public int Page { get; private set; }
 
     private List<GameObject> _buttons = new();
-    private const int _itemsOnPageCount = 12;
+    private const int _itemsOnPageCount = 16;
     private int LevelCount => LevelList.GetLevelsCount();
     
 

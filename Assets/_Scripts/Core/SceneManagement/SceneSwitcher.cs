@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -27,7 +28,7 @@ public class SceneSwitcher : MonoBehaviour, ISceneSwitcher
             _progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
             //_loadingScreen.SetProgress(_progress);
 
-            if (asyncOperation.progress >= 0.9f && Time.time - startTime >= 0.75f)
+            if (asyncOperation.progress >= 0.9f && Time.time - startTime >= 0.55f)
             {
                 asyncOperation.allowSceneActivation = true;
             }

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: MovableBox
   m_EditorClassIdentifier: 
   Type: 3
-  Prefab: {fileID: 3740828101750445981, guid: 608e98e02328a1d4980d3d739d134d4c, type: 3}
+  Prefab: {fileID: 8136715435914360785, guid: f4e77e4ce24282a4aaf29cce5ecd6438, type: 3}
   EditorPrefab: {fileID: 6702933102544529698, guid: 6582d43a55bd06e408c53f4e6181f31d, type: 3}
   EditorIcon: {fileID: 2800000, guid: 88cabf56a0d870c498cd758063c266ee, type: 3}

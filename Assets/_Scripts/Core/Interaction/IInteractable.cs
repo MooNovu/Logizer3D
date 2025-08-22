@@ -29,10 +29,5 @@ public interface ISignalReciever
 // Необычная анимации при заходе
 public interface ISpecialAnimation 
 {
-    public Sequence GetAnimation(Transform targetTransform, Vector2Int targetPosition);
-}
-// Необычная анимация выхода (Настраивается )
-public interface IExitSpecialAnimation
-{
-    public Sequence GetExitAnimation(Transform targetTransform, Vector2Int targetPosition);
+    public MoverAnimation EnterAnimation();
 }

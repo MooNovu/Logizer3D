@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+using System;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -12,47 +11,42 @@ public class EditorLevelSelection : MonoBehaviour
     [SerializeField] private GameObject _uiRedactorPanelPrefab;
 
     [Header("New Level Panel")]
-    [SerializeField] private GameObject _newLevelPanel;
+    [SerializeField] private UiAnimator _newLevelPanel;
     [SerializeField] private TMP_InputField _levelNameInputField;
-    [SerializeField] private TMP_InputField _gridSizeInputField;
+    [SerializeField] private int _gridSize;
+
+    [Header("ConfirmPanel")]
+    [SerializeField] private UiAnimator _confirmPanel;
 
     [Inject] private readonly ISceneSwitcher _sceneSwitcher;
 
-    private List<RedactorPanel> _panelContainer = new();
+    private RedactorPanel _panelToDelete = null;
 
     private void Start()
     {
-        _newLevelPanel.SetActive(true);
-        UIAnimationHandler.CloseAnimation(_newLevelPanel, true);
         CreateButtons();
     }
 
     public void OpenNewLevelPanel()
     {
         _levelNameInputField.text = "";
-        _gridSizeInputField.text = "";
-        UIAnimationHandler.OpenAnimation(_newLevelPanel);
+        _newLevelPanel.OpenAnimation();
     }
     public void CloseNewLevelPanel()
     {
-        UIAnimationHandler.CloseAnimation(_newLevelPanel);
+        _newLevelPanel.CloseAnimation();
     }
     public void CreateNewLevel()
     {
-        if (string.IsNullOrEmpty(_gridSizeInputField.text) || string.IsNullOrEmpty(_levelNameInputField.text))
+        if (string.IsNullOrEmpty(_levelNameInputField.text))
         {
             Debug.Log("Empty Inputs");
             return;
         }
-        if (int.TryParse(_gridSizeInputField.text, out int size))
-        {
-            string levelName = _levelNameInputField.text;
-            SaveManager.SaveLevel(new GridSystem(size, size), levelName);
-            AddPanel(levelName);
-            CloseNewLevelPanel();
-            return;
-        }
-        Debug.LogError("Not A number while trying to parse gridSize");
+        string levelName = _levelNameInputField.text;
+        SaveFileManager.SaveLevel(new GridSystem(_gridSize, _gridSize), levelName);
+        AddPanel(levelName);
+        CloseNewLevelPanel();
     }
 
     private void CreateButtons()
@@ -64,53 +58,87 @@ public class EditorLevelSelection : MonoBehaviour
     }
     private void AddPanel(string levelName)
     {
-        RedactorPanel panel = new(_uiRedactorPanelPrefab, _parent, levelName, _sceneSwitcher);
-        _panelContainer.Add(panel);
+        RedactorPanel _ = new(_uiRedactorPanelPrefab, _parent, levelName, SwitchScene, DeleteLevel);
+    }
+
+    private void SwitchScene(string sceneName)
+    {
+        _sceneSwitcher.SwitchScene(sceneName);
+    }
+    private void DeleteLevel(RedactorPanel panel)
+    {
+        _confirmPanel.OpenAnimation();
+        _panelToDelete = panel;
+
+    }
+    public void DeleteLevel()
+    {
+        SaveFileManager.DeleteLevel(_panelToDelete.LevelName);
+        Destroy(_panelToDelete.PanelGO);
+        _panelToDelete = null;
+        _confirmPanel.CloseAnimation();
+    }
+    public void CancelDeleting()
+    {
+        _panelToDelete = null;
     }
 
     private class RedactorPanel
     {
-        private readonly GameObject _panel;
+        public readonly GameObject PanelGO;
+        public readonly string LevelName;
         private readonly TextMeshProUGUI _title;
         private readonly Button _editButton;
+        private readonly Button _deleteButton;
         private readonly Button _playButton;
-        private readonly ISceneSwitcher _sceneSwitcher;
+        private readonly Action<string> switchScene;
+        private readonly Action<RedactorPanel> deleteAction;
         public RedactorPanel(GameObject prefab,
             Transform parent,
             string levelName,
-            ISceneSwitcher sceneSwitcher)
+            Action<string> switchScene,
+            Action<RedactorPanel> deleteAction)
         {
-            _sceneSwitcher = sceneSwitcher;
+            this.switchScene = switchScene;
+            this.deleteAction = deleteAction;
+            LevelName = levelName;
+            PanelGO = GameObject.Instantiate(prefab, parent);
 
-            _panel = GameObject.Instantiate(prefab, parent);
-
-            _title = _panel.transform.Find("LevelName").GetComponent<TextMeshProUGUI>();
-            _editButton = _panel.transform.Find("EditButton").GetComponent<Button>();
-            _playButton = _panel.transform.Find("PlayButton").GetComponent<Button>();
-            SetLevelName(levelName);
+            _title = PanelGO.transform.Find("LevelName").GetComponent<TextMeshProUGUI>();
+            _editButton = PanelGO.transform.Find("EditButton").GetComponent<Button>();
+            _deleteButton = PanelGO.transform.Find("DeleteButton").GetComponent<Button>();
+            _playButton = PanelGO.transform.Find("PlayButton").GetComponent<Button>();
+            SetLevelName();
         }
 
-        public void SetLevelName(string levelName)
+        public void SetLevelName()
         {
-            _title.text = levelName;
-            SetCallbacks(levelName);
+            _title.text = LevelName;
+            SetCallbacks();
         }
-        private void SetCallbacks(string levelName)
+        private void SetCallbacks()
         {
             _editButton.onClick.RemoveAllListeners();
+            _deleteButton.onClick.RemoveAllListeners();
             _playButton.onClick.RemoveAllListeners();
             _editButton.onClick.AddListener(
                 () =>
                 {
-                    CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(levelName));
-                    _sceneSwitcher.SwitchScene("Redactor");
+                    CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(LevelName));
+                    switchScene.Invoke("Redactor");
                 }
                 );
             _playButton.onClick.AddListener(
                 () =>
                 {
-                    CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(levelName));
-                    _sceneSwitcher.SwitchScene("Game");
+                    CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(LevelName));
+                    switchScene.Invoke("Game");
+                }
+                );
+            _deleteButton.onClick.AddListener(
+                () =>
+                {
+                    deleteAction.Invoke(this);
                 }
                 );
         }
