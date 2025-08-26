@@ -3597,7 +3597,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _parent: {fileID: 1758155315}
-  _buttonsPrefab: {fileID: 8849613564447393164, guid: 2832d69cbe3f68145b8f195eac17bb53, type: 3}
+  _levelPrefab: {fileID: 8849613564447393164, guid: 2832d69cbe3f68145b8f195eac17bb53, type: 3}
   _pageUGUI: {fileID: 1544481465}
 --- !u!114 &871654383
 MonoBehaviour:
@@ -5496,10 +5496,10 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 150, y: 150}
+  m_CellSize: {x: 200, y: 200}
   m_Spacing: {x: 25, y: 25}
   m_Constraint: 1
-  m_ConstraintCount: 4
+  m_ConstraintCount: 3
 --- !u!114 &1758155319
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,15 +3,20 @@ using UnityEngine;
 
 public static class ProgressSaver
 {
-    private const string _fileName = "progress.json";   
+    private const string _fileName = "progress.json";
     private static readonly string _savePath = Path.Combine(Application.persistentDataPath, _fileName);
-    public static void SaveProgress(int lvlId)
+    public static void SaveProgress(int lvlId, int StarsCollected)
     {
         GameProgress progress = LoadProgress();
-        if (!progress.CompletedLevels.Contains(lvlId))
+        if (!progress.CompletedLevels.ContainsKey(lvlId))
         {
-            progress.CompletedLevels.Add(lvlId);
+            progress.CompletedLevels.Add(lvlId, StarsCollected);
         }
+        else if (progress.CompletedLevels[lvlId] < StarsCollected)
+        {
+            progress.CompletedLevels[lvlId] = StarsCollected;
+        }
+        else return;
         string json = JsonUtility.ToJson(progress);
         File.WriteAllText(_savePath, json);
     }
@@ -22,11 +27,17 @@ public static class ProgressSaver
             string json = File.ReadAllText(_savePath);
             return JsonUtility.FromJson<GameProgress>(json);
         }
-        return new();
+
+        GameProgress progress = new();
+        File.WriteAllText(_savePath, JsonUtility.ToJson(progress));
+        return progress;
     }
-    public static bool IsLevelCompleted(int lvlId)
+    public static int? IsLevelCompleted(int lvlId)
     {
         GameProgress progress = LoadProgress();
-        return progress.CompletedLevels.Contains(lvlId);
+        if (progress.CompletedLevels.ContainsKey(lvlId))
+            return progress.CompletedLevels[lvlId];
+
+        return null;
     }
 }

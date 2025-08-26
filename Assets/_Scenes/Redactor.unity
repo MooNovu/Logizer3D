@@ -2158,8 +2158,8 @@ MonoBehaviour:
   - {fileID: 2122546420}
   - {fileID: 1175632746}
   IsHideByDefault: 1
-  openAnimation: 0
-  closeAnimation: 0
+  openAnimation: 4
+  closeAnimation: 4
   InitialOpenAnimation: 0
   InitialOpenDelay: 0.5
 --- !u!225 &867591010
@@ -3812,8 +3812,8 @@ MonoBehaviour:
   - {fileID: 581285739}
   - {fileID: 1732071094}
   IsHideByDefault: 1
-  openAnimation: 0
-  closeAnimation: 0
+  openAnimation: 4
+  closeAnimation: 4
   InitialOpenAnimation: 0
   InitialOpenDelay: 0.5
 --- !u!225 &1570975308

@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,5 +35,5 @@ public class ElementData
 [System.Serializable]
 public class GameProgress
 {
-    public List<int> CompletedLevels = new();
+    public Dictionary<int, int> CompletedLevels = new();
 }
