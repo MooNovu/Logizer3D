@@ -7,15 +7,13 @@ using Zenject;
 public class GameCanvasManager : MonoBehaviour
 {
     [SerializeField] private UiAnimator _pauseMenu;
-    [SerializeField] private GameObject _resaultMenu;
+    [SerializeField] private UiAnimator _resaultMenu;
 
     [Inject] private ISceneSwitcher _sceneSwitcher;
 
     private void Start()
     {
         UIEvents.OnResaulMenu += ShowResaultMenu;
-
-        //UIAnimationHandler.CloseAnimation(_resaultMenu, true);
     }
     private void OnDestroy()
     {
@@ -42,12 +40,12 @@ public class GameCanvasManager : MonoBehaviour
     public void ShowResaultMenu()
     {
         int levelId = 1;
-        _resaultMenu.GetComponentInChildren<TextMeshProUGUI>().text = $"Level {levelId} Complete!";
-        //UIAnimationHandler.OpenAnimation(_resaultMenu);
+        //_resaultMenu.GetComponentInChildren<TextMeshProUGUI>().text = $"Level {levelId} Complete!";
+        _resaultMenu.OpenAnimation();
     }
     public void HideResaultMenu()
     {
-        //UIAnimationHandler.CloseAnimation(_resaultMenu);
+        _resaultMenu.CloseAnimation();
     }
 
     public void ToMainMenu()

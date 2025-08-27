@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pauseMenu: {fileID: 1327454600}
-  _resaultMenu: {fileID: 2000477487}
+  _resaultMenu: {fileID: 276820445}
 --- !u!114 &17319873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,6 +342,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 276820442}
+  - component: {fileID: 276820445}
+  - component: {fileID: 276820444}
   - component: {fileID: 276820441}
   - component: {fileID: 276820440}
   - component: {fileID: 276820439}
@@ -414,7 +416,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!224 &276820442
 RectTransform:
@@ -448,6 +450,43 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &276820444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276820438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1560ce981a1aab64f9276ccc3bc06fed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PanelClosed:
+    m_PersistentCalls:
+      m_Calls: []
+  PanelClosedSequence:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &276820445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276820438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d684cdf23c60d44282bcbcec03633e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiElements:
+  - {fileID: 2000477488}
+  IsHideByDefault: 1
+  openAnimation: 4
+  closeAnimation: 4
+  InitialOpenAnimation: 0
+  InitialOpenDelay: 0.5
 --- !u!1 &291453810
 GameObject:
   m_ObjectHideFlags: 0
@@ -13116,14 +13155,13 @@ GameObject:
   - component: {fileID: 2000477488}
   - component: {fileID: 2000477491}
   - component: {fileID: 2000477490}
-  - component: {fileID: 2000477492}
   m_Layer: 5
   m_Name: ResaultMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2000477488
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13183,24 +13221,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2000477487}
   m_CullTransparentMesh: 1
---- !u!114 &2000477492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2000477487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1560ce981a1aab64f9276ccc3bc06fed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PanelClosed:
-    m_PersistentCalls:
-      m_Calls: []
-  PanelClosedSequence:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &2117441192
 GameObject:
   m_ObjectHideFlags: 0
