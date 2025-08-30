@@ -10,7 +10,8 @@ public class UiAnimator : MonoBehaviour
         SlideFromTop,
         SlideFromLeft,
         SlideFromRight,
-        Pulse
+        Pulse,
+        Splash
     }
 
     [Header("Ui Elements to Animate")]
@@ -66,7 +67,10 @@ public class UiAnimator : MonoBehaviour
                 seq = SlideFrom(Vector2.right, true);
                 break;
             case AnimationType.Pulse:
-                seq = PulseOpen(true);
+                seq = Pulse(true);
+                break;
+            case AnimationType.Splash:
+                seq = Splash(true);
                 break;
             default:
                 seq = SlideFrom(Vector2.down, true);
@@ -94,7 +98,10 @@ public class UiAnimator : MonoBehaviour
                 seq = SlideFrom(Vector2.right, false);
                 break;
             case AnimationType.Pulse:
-                seq = PulseOpen(false);
+                seq = Pulse(false);
+                break;
+            case AnimationType.Splash:
+                seq = Splash(false);
                 break;
             default:
                 seq = SlideFrom(Vector2.down, false);
@@ -135,7 +142,7 @@ public class UiAnimator : MonoBehaviour
         }
         return seq;
     }
-    private Sequence PulseOpen(bool isOpening)
+    private Sequence Pulse(bool isOpening)
     {
         if (isOpening == false && _canvasGroup != null) _canvasGroup.interactable = false;
         Sequence seq = DOTween.Sequence();
@@ -164,6 +171,39 @@ public class UiAnimator : MonoBehaviour
 
             if (isOpening == true && i == _uiElements.Length - 1)
             {
+                seq.OnComplete(() => { if (_canvasGroup != null) _canvasGroup.interactable = true; });
+            }
+        }
+        return seq;
+    }
+    private Sequence Splash(bool isOpening)
+    {
+        if (isOpening == false && _canvasGroup != null) _canvasGroup.interactable = false;
+        Sequence seq = DOTween.Sequence();
+        for (int i = 0; i < _uiElements.Length; i++)
+        {
+            int elementIndex = isOpening ? i : _uiElements.Length - 1 - i;
+            RectTransform element = _uiElements[elementIndex];
+
+            _uiElements[i].DOKill();
+
+            seq = DOTween.Sequence();
+            if (isOpening)
+            {
+                _uiElements[i].anchoredPosition = _originalPositions[element];
+                seq.Append(element.DOScale(1f, AnimationDuration).SetDelay(0f).SetEase(Ease.OutQuad).From(1.5f));
+            }
+            else
+            {
+                seq.Append(element.DOScale(1.5f, AnimationDuration).SetEase(Ease.InQuad));
+
+                Vector2 hiddenPos = _originalPositions[element] + new Vector2(0, -Screen.height);
+                seq.Append(element.DOAnchorPos(hiddenPos, 0));
+            }
+            if (isOpening == false && i == 0) _canvasGroup.DOFade(0f, AnimationDuration).From(1f);
+            if (isOpening == true && i == _uiElements.Length - 1)
+            {
+                _canvasGroup.DOFade(1f, AnimationDuration).From(0f);
                 seq.OnComplete(() => { if (_canvasGroup != null) _canvasGroup.interactable = true; });
             }
         }

@@ -40,7 +40,6 @@ public class GameCanvasManager : MonoBehaviour
     }
     public void ShowResaultMenu()
     {
-        int levelId = 1;
         //_resaultMenu.GetComponentInChildren<TextMeshProUGUI>().text = $"Level {levelId} Complete!";
         _resaultMenu.OpenAnimation();
     }
