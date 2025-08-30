@@ -27,6 +27,7 @@ public class GameCanvasManager : MonoBehaviour
     public void ReloadLevel()
     {
         HidePauseMenu();
+        HideResaultMenu();
         GameEvents.ReloadLevel();
     }
     public void ShowPauseMenu()
