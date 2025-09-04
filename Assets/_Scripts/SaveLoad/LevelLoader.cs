@@ -24,15 +24,8 @@ public class LevelLoader : MonoBehaviour
         StopAllCoroutines();
         DOTween.Clear();
     }
-    public void LevelCompleted()
-    {
-        StartCoroutine(CompleteLevelSequence());
-    }
-    public void LoadLevel(LevelData lvl)
-    {
-
-        StartCoroutine(LoadingLevelSequence(lvl));
-    }
+    public void LevelCompleted() => CompleteLevelSequence();
+    public void LoadLevel(LevelData lvl) => StartCoroutine(LoadingLevelSequence(lvl));
     public void LoadNextLevel()
     {
         CurrentLevelHandler.LoadNextLevel();
@@ -49,51 +42,53 @@ public class LevelLoader : MonoBehaviour
         StartCoroutine(RetryLevelSequence());
     }
 
-    public IEnumerator LoadingLevelSequence(LevelData lvl)
+    private IEnumerator LoadingLevelSequence(LevelData lvl)
     {
-        GameEvents.ClearCandies();
-        _loadManager.ClearLevel();
-        //Debug.Log($"Starting Loading level {CurrentLevelHandler.LevelId}");
+        ClearLevel();
         _loadManager.LoadLevel(lvl);
-        yield return null;
 
-        StartCoroutine(Camera());
+        StartCoroutine(CameraAnimation());
 
         yield return _loadManager.SpawnAnimation();
 
-        _loadManager.OptimizeStaticObjects();
-        GameEvents.LevelFullLoaded();
+        LevelLoadingComplete();
     }
-    public IEnumerator RetryLevelSequence()
+    private IEnumerator RetryLevelSequence()
     {
-        UIEvents.LoadingScreenAnimationStart();
-        yield return new WaitForSeconds(0.5f);
+        yield return UIEvents.LoadingScreenAnimationStart().WaitForCompletion();
+
+        ClearLevel();
+        _loadManager.RemovePlayer();
+
         UIEvents.LoadingScreenAnimationEnd();
-        GameEvents.ClearCandies();
-        _loadManager.ClearLevel();
-        _loadManager.RemovePlayer();
 
-        LevelData lvl = CurrentLevelHandler.LevelData;
-        //Debug.Log($"Reload level {lvl.Name}");
-        _loadManager.LoadLevel(lvl);
-        yield return null;
+        _loadManager.LoadLevel(CurrentLevelHandler.LevelData);
 
-        StartCoroutine(Camera());
-
+        StartCoroutine(CameraAnimation());
         yield return _loadManager.SpawnAnimation();
+        LevelLoadingComplete();
 
-        _loadManager.OptimizeStaticObjects();
-        GameEvents.LevelFullLoaded();
     }
-    public IEnumerator CompleteLevelSequence()
+    public void CompleteLevelSequence()
     {
-        yield return null;//_loadManager.ClearLevel();
         _loadManager.RemovePlayer();
+        ProgressSaver.SaveProgress(CurrentLevelHandler.LevelId, GameEvents.CandiesCollected);
         UIEvents.ShowResaulMenu();
     }
-    private IEnumerator Camera()
+    private IEnumerator CameraAnimation()
     {
         yield return _cameraController.CameraSequence();
         _loadManager.SpawnPlayer();
+    }
+
+    private void ClearLevel()
+    {
+        GameEvents.ClearCandies();
+        _loadManager.ClearLevel();
+    }
+    private void LevelLoadingComplete()
+    {
+        _loadManager.OptimizeStaticObjects();
+        GameEvents.LevelFullLoaded();
     }
 }

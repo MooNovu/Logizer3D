@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -7,16 +8,22 @@ public static class ProgressSaver
     private static readonly string _savePath = Path.Combine(Application.persistentDataPath, _fileName);
     public static void SaveProgress(int lvlId, int StarsCollected)
     {
+        if (lvlId == -1) return;
         GameProgress progress = LoadProgress();
-        if (!progress.CompletedLevels.ContainsKey(lvlId))
+        Dictionary<int, int> CompletedLevels = progress.CompletedLevels.ToDictionary();
+
+        if (!CompletedLevels.ContainsKey(lvlId))
         {
-            progress.CompletedLevels.Add(lvlId, StarsCollected);
+            CompletedLevels.Add(lvlId, StarsCollected);
         }
-        else if (progress.CompletedLevels[lvlId] < StarsCollected)
+        else if (CompletedLevels[lvlId] < StarsCollected)
         {
-            progress.CompletedLevels[lvlId] = StarsCollected;
+            CompletedLevels[lvlId] = StarsCollected;
         }
         else return;
+
+        progress.CompletedLevels.FromDictionary(CompletedLevels);
+
         string json = JsonUtility.ToJson(progress);
         File.WriteAllText(_savePath, json);
     }
@@ -35,8 +42,10 @@ public static class ProgressSaver
     public static int? IsLevelCompleted(int lvlId)
     {
         GameProgress progress = LoadProgress();
-        if (progress.CompletedLevels.ContainsKey(lvlId))
-            return progress.CompletedLevels[lvlId];
+        Dictionary<int, int> CompletedLevels = progress.CompletedLevels.ToDictionary();
+
+        if (CompletedLevels.ContainsKey(lvlId))
+            return CompletedLevels[lvlId];
 
         return null;
     }

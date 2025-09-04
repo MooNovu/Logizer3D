@@ -7,7 +7,7 @@ using Zenject;
 public class GameCanvasManager : MonoBehaviour
 {
     [SerializeField] private UiAnimator _pauseMenu;
-    [SerializeField] private UiAnimator _resaultMenu;
+    [SerializeField] private ResultMenu _resaultMenu;
 
     [Inject] private ISceneSwitcher _sceneSwitcher;
 

@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pauseMenu: {fileID: 1327454600}
-  _resaultMenu: {fileID: 276820445}
+  _resaultMenu: {fileID: 276820446}
 --- !u!114 &17319873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -695,6 +695,7 @@ GameObject:
   - component: {fileID: 276820442}
   - component: {fileID: 276820445}
   - component: {fileID: 276820444}
+  - component: {fileID: 276820446}
   - component: {fileID: 276820441}
   - component: {fileID: 276820440}
   - component: {fileID: 276820439}
@@ -840,6 +841,24 @@ MonoBehaviour:
   closeAnimation: 5
   InitialOpenAnimation: 0
   InitialOpenDelay: 0.5
+--- !u!114 &276820446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276820438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd04b983deca3a74596a37eeef90f2ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _timesLeftText: {fileID: 56557543}
+  _stepsText: {fileID: 2099689877}
+  _filledStars:
+  - {fileID: 1976394886}
+  - {fileID: 1497767126}
+  - {fileID: 329241380}
 --- !u!1 &291453810
 GameObject:
   m_ObjectHideFlags: 0

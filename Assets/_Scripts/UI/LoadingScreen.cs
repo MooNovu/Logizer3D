@@ -2,6 +2,7 @@ using UnityEngine;
 using DG.Tweening;
 using System.Runtime.CompilerServices;
 using UnityEngine.UI;
+using System;
 
 public class LoadingScreen : MonoBehaviour
 {
@@ -38,25 +39,30 @@ public class LoadingScreen : MonoBehaviour
     {
         EndAnimation();
     }
-    public void StartAnimation()
+    public Sequence StartAnimation()
     {
         SetActives(true);
         TransitionMaterial.SetFloat("_Progress", 0f);
         TransitionMaterial.SetFloat("_IsOpen", 1f);
-        DOVirtual.Float(0f, 2f, duration, value =>
+        Sequence seq = DOTween.Sequence();
+        seq.Append(DOVirtual.Float(0f, 2f, duration, value =>
         {
             TransitionMaterial.SetFloat("_Progress", value);
-        }).SetDelay(0.1f).SetEase(Ease.InExpo);
+        }).SetDelay(0.1f).SetEase(Ease.InExpo));
+        return seq;
     }
-    public void EndAnimation()
+    public Sequence EndAnimation()
     {
         SetActives(true);
         TransitionMaterial.SetFloat("_Progress", 0f);
         TransitionMaterial.SetFloat("_IsOpen", 0f);
-        DOVirtual.Float(0f, 2f, duration, value =>
+        Sequence seq = DOTween.Sequence();
+        seq.Append(DOVirtual.Float(0f, 2f, duration, value =>
         {
             TransitionMaterial.SetFloat("_Progress", value);
-        }).SetDelay(0.1f).SetEase(Ease.InExpo).OnComplete(() => SetActives(false));
+        }).SetDelay(0.1f).SetEase(Ease.InExpo).OnComplete(() => SetActives(false)));
+
+        return seq;
     }
     private void SetActives(bool state)
     {

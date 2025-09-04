@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,5 +36,32 @@ public class ElementData
 [System.Serializable]
 public class GameProgress
 {
-    public Dictionary<int, int> CompletedLevels = new();
+    public DictionaryWrapper CompletedLevels = new();
+}
+
+[System.Serializable]
+public class DictionaryWrapper
+{
+    public List<int> keys = new();
+    public List<int> values = new();
+
+    public Dictionary<int, int> ToDictionary()
+    {
+        Dictionary<int, int> dict = new();
+        for (int i = 0; i < keys.Count; i++)
+        {
+            dict[keys[i]] = values[i];
+        }
+        return dict;
+    }
+    public void FromDictionary(Dictionary<int, int> dict)
+    {
+        keys.Clear();
+        values.Clear();
+        foreach (var pair in dict)
+        {
+            keys.Add(pair.Key);
+            values.Add(pair.Value);
+        }
+    }
 }

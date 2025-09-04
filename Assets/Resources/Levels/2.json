@@ -1,0 +1,173 @@
+{
+    "Name": "Test",
+    "width": 25,
+    "height": 25,
+    "cells": [
+        {
+            "x": 0,
+            "y": 0,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        },
+        {
+            "x": 0,
+            "y": 1,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        },
+        {
+            "x": 0,
+            "y": 2,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": [
+                {
+                    "elementRotation": 0,
+                    "elementType": 10,
+                    "ElementState": {
+                        "rid": -2
+                    }
+                }
+            ]
+        },
+        {
+            "x": 1,
+            "y": 0,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        },
+        {
+            "x": 1,
+            "y": 1,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        },
+        {
+            "x": 1,
+            "y": 2,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": [
+                {
+                    "elementRotation": 0,
+                    "elementType": 10,
+                    "ElementState": {
+                        "rid": -2
+                    }
+                }
+            ]
+        },
+        {
+            "x": 2,
+            "y": 0,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        },
+        {
+            "x": 2,
+            "y": 1,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        },
+        {
+            "x": 2,
+            "y": 2,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": [
+                {
+                    "elementRotation": 0,
+                    "elementType": 10,
+                    "ElementState": {
+                        "rid": -2
+                    }
+                }
+            ]
+        },
+        {
+            "x": 3,
+            "y": 0,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": [
+                {
+                    "elementRotation": 0,
+                    "elementType": 5,
+                    "ElementState": {
+                        "rid": -2
+                    }
+                }
+            ]
+        },
+        {
+            "x": 3,
+            "y": 1,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        },
+        {
+            "x": 3,
+            "y": 2,
+            "floorRotation": 0,
+            "floorType": 1,
+            "FloorState": {
+                "rid": -2
+            },
+            "elements": []
+        }
+    ],
+    "references": {
+        "version": 2,
+        "RefIds": [
+            {
+                "rid": -2,
+                "type": {
+                    "class": "",
+                    "ns": "",
+                    "asm": ""
+                },
+                "data": {}
+            }
+        ]
+    }
+}
