@@ -79,11 +79,13 @@ public class LevelLoader : MonoBehaviour
     {
         yield return _cameraController.CameraSequence();
         _loadManager.SpawnPlayer();
+        GameEvents.SetCurrentTime();
     }
 
     private void ClearLevel()
     {
         GameEvents.ClearCandies();
+        GameEvents.ClearSteps();
         _loadManager.ClearLevel();
     }
     private void LevelLoadingComplete()

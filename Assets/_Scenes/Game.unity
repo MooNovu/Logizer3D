@@ -853,7 +853,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd04b983deca3a74596a37eeef90f2ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _timesLeftText: {fileID: 56557543}
+  _timeText: {fileID: 56557543}
   _stepsText: {fileID: 2099689877}
   _filledStars:
   - {fileID: 1976394886}

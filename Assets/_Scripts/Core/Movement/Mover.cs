@@ -60,7 +60,7 @@ public abstract class Mover : MonoBehaviour, IMovable
 
         return true;
     }
-    protected IEnumerator MoveSequence(Vector2Int targetPosition)
+    protected virtual IEnumerator MoveSequence(Vector2Int targetPosition)
     {
         Vector2Int originalPosition = Position;
         Vector2Int newPosition = targetPosition;

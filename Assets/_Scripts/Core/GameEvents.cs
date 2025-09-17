@@ -17,6 +17,13 @@ public static class GameEvents
         OnCandyCleared?.Invoke();
         CandiesCollected = 0;
     }
+    public static int StepsDone { get; private set; }
+    public static void AddStep() => StepsDone += 1;
+    public static void ClearSteps() => StepsDone = 0;
+
+    public static float TimeCounter { get; private set; }
+    public static void SetCurrentTime() => TimeCounter = Time.time;
+    public static float GetTimeDifference() => Time.time - TimeCounter;
 
     public static event Action OnPlayerReachedExit;
     public static event Action OnLevelNextLoad;

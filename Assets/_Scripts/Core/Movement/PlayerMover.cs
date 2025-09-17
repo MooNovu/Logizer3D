@@ -32,6 +32,11 @@ public class PlayerMover : Mover
         }
         return false;
     }
+    protected override IEnumerator MoveSequence(Vector2Int targetPosition)
+    {
+        yield return base.MoveSequence(targetPosition);
+        GameEvents.AddStep();
+    }
     public override bool TrySlide(Vector2Int targetPosition)
     {
         if (base.TrySlide(targetPosition))
