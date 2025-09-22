@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using Zenject;
 
@@ -110,12 +111,16 @@ public abstract class Mover : MonoBehaviour, IMovable
         int stepY = delta.y != 0 ? (int)Mathf.Sign(delta.y) : 0;
         Vector2Int step = new(stepX, stepY);
 
+        bool isTransformChanger = false;
         Vector2Int calculatedTargetPosition = Position;
 
         while (calculatedTargetPosition != targetPosition && !_gridSystem.IsMovableOnPosition(calculatedTargetPosition + step))
         {
             if (_gridSystem.GetCell(calculatedTargetPosition + step).HasTransformChanger())
-                return TryMove(step);
+            {
+                isTransformChanger = true;
+                break;
+            }
 
             TryPostInteract(calculatedTargetPosition);
             calculatedTargetPosition += step;
@@ -128,7 +133,7 @@ public abstract class Mover : MonoBehaviour, IMovable
 
         _animation.Kill();
         _animation = transform.DOMove(GridSystem.GetWorldPosition(calculatedTargetPosition), 0.25f)
-            .SetEase(Ease.InQuad);
+            .SetEase(Ease.InQuad).OnComplete( () => { if (isTransformChanger) TryMove(step); });
 
         _gridSystem.TryMoveElement(storePos, Position, thisElement);
         return true;

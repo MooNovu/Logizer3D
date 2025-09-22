@@ -51,7 +51,7 @@ public class ResultMenu : MonoBehaviour
     private string FloatToTime(float time)
     {
         int minutes = Mathf.FloorToInt(time / 60) % 60;
-        int seconds = Mathf.FloorToInt(time);
+        int seconds = Mathf.FloorToInt(time % 60);
         
         return $"{minutes}:{seconds:00}";
     }
