@@ -25,6 +25,11 @@ public static class GameEvents
     public static void SetCurrentTime() => TimeCounter = Time.time;
     public static float GetTimeDifference() => Time.time - TimeCounter;
 
+    public static event Action OnInputEnable;
+    public static event Action OnInputDisable;
+    public static void EnableInput() => OnInputEnable?.Invoke();
+    public static void DisableInput() => OnInputDisable?.Invoke();
+
     public static event Action OnPlayerReachedExit;
     public static event Action OnLevelNextLoad;
     public static event Action<LevelData> OnLevelLoad;

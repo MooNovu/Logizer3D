@@ -25,7 +25,7 @@ public class LevelLoader : MonoBehaviour
         DOTween.Clear();
     }
     public void LevelCompleted() => CompleteLevelSequence();
-    public void LoadLevel(LevelData lvl) => StartCoroutine(LoadingLevelSequence(lvl));
+    public void LoadLevel(LevelData lvl) => StartCoroutine(FirstLoadingLevelSequence(lvl));
     public void LoadNextLevel()
     {
         CurrentLevelHandler.LoadNextLevel();
@@ -34,17 +34,34 @@ public class LevelLoader : MonoBehaviour
             Debug.Log("All Levels Completed");
             return;
         }
-        StartCoroutine(LoadingLevelSequence(CurrentLevelHandler.LevelData));
+
+        StartCoroutine(LoadingNextLevelSequence(CurrentLevelHandler.LevelData));
     }
     public void RetryLevel()
     {
         StopAllCoroutines();
         StartCoroutine(RetryLevelSequence());
     }
+    private IEnumerator LoadingNextLevelSequence(LevelData lvl)
+    {
+        GameEvents.DisableInput();
+        yield return UIEvents.LoadingScreenAnimationStart().WaitForCompletion();
 
-    private IEnumerator LoadingLevelSequence(LevelData lvl)
+        ClearLevel();
+        _loadManager.LoadLevel(lvl);
+
+        UIEvents.LoadingScreenAnimationEnd().WaitForCompletion();
+
+        StartCoroutine(CameraAnimation());
+
+        yield return _loadManager.SpawnAnimation();
+
+        LevelLoadingComplete();
+    }
+    private IEnumerator FirstLoadingLevelSequence(LevelData lvl)
     {
         ClearLevel();
+        GameEvents.DisableInput();
         _loadManager.LoadLevel(lvl);
 
         StartCoroutine(CameraAnimation());
@@ -55,6 +72,7 @@ public class LevelLoader : MonoBehaviour
     }
     private IEnumerator RetryLevelSequence()
     {
+        GameEvents.DisableInput();
         yield return UIEvents.LoadingScreenAnimationStart().WaitForCompletion();
 
         ClearLevel();
@@ -91,6 +109,7 @@ public class LevelLoader : MonoBehaviour
     private void LevelLoadingComplete()
     {
         _loadManager.OptimizeStaticObjects();
+        GameEvents.EnableInput();
         GameEvents.LevelFullLoaded();
     }
 }

@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 using DG.Tweening;
+
 public class MobileInput : MonoBehaviour, IInputProvider, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
     public event Action<Vector2Int> OnMove;
@@ -16,6 +16,8 @@ public class MobileInput : MonoBehaviour, IInputProvider, IPointerDownHandler, I
     private readonly float _repeatDelay = 0.3f;
     private readonly float _repeatInterval = 0.25f;
 
+    private bool _isActive = true;
+
     private Vector2 _touchStartPos;
     private Vector2Int _currentDirection;
     private bool _isSwiping;
@@ -27,13 +29,28 @@ public class MobileInput : MonoBehaviour, IInputProvider, IPointerDownHandler, I
     {
         _indicatorCanvasGroup = _circleIndicator.GetComponent<CanvasGroup>();
         _indicatorTransform = _circleIndicator.GetComponent<RectTransform>();
+
+        GameEvents.OnInputEnable += EnableInput;
+        GameEvents.OnInputDisable += DisableInput;
+    }
+    private void OnDisable()
+    {
+        GameEvents.OnInputEnable -= EnableInput;
+        GameEvents.OnInputDisable -= DisableInput;
+    }
+    private void DisableInput()
+    {
+        _isActive = false;
+    }
+    private void EnableInput()
+    {
+        _isActive = true;
     }
     private void Update()
     {
-        if (!_isSwiping || !_hasSwiped || _safeZone) 
-        {
-            return;
-        }
+        if (!_isActive) return;
+        if (!_isSwiping || !_hasSwiped || _safeZone) return;
+
         _repeatTimer -= Time.deltaTime;
 
         if (_repeatTimer <= 0)
@@ -87,11 +104,12 @@ public class MobileInput : MonoBehaviour, IInputProvider, IPointerDownHandler, I
     }
     private Vector2Int GetSwipeDirection(Vector2 swipeDelta)
     {
-        if (Math.Abs(swipeDelta.x) > Math.Abs(swipeDelta.y))
-            return swipeDelta.x > 0 ? Vector2Int.right : Vector2Int.left;
+        Vector2 rotated = Quaternion.Euler(0, 0, -22.5f) * swipeDelta;
 
-        else 
-            return swipeDelta.y > 0 ? Vector2Int.up : Vector2Int.down;
+        if (Mathf.Abs(rotated.x) > Mathf.Abs(rotated.y))
+            return rotated.x > 0 ? Vector2Int.right : Vector2Int.left;
+        else
+            return rotated.y > 0 ? Vector2Int.up : Vector2Int.down;
     }
 
     private void ShowIndicator()

@@ -49,7 +49,7 @@ public class LoadManager
 
         allObjects = new();
         staticObjects = new();
-
+        _playerSpawn = new(0, 0);
         foreach (CellData cellData in data.cells)
         {
             Vector2Int position = new(cellData.x, cellData.y);

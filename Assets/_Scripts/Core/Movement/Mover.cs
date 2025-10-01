@@ -114,7 +114,9 @@ public abstract class Mover : MonoBehaviour, IMovable
         bool isTransformChanger = false;
         Vector2Int calculatedTargetPosition = Position;
 
-        while (calculatedTargetPosition != targetPosition && !_gridSystem.IsMovableOnPosition(calculatedTargetPosition + step))
+        while (calculatedTargetPosition != targetPosition && 
+            !_gridSystem.IsMovableOnPosition(calculatedTargetPosition + step) &&
+            _gridSystem.IsCellWalkable(calculatedTargetPosition + step, step))
         {
             if (_gridSystem.GetCell(calculatedTargetPosition + step).HasTransformChanger())
             {
