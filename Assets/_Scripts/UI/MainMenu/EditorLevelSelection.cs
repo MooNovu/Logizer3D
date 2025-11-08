@@ -22,6 +22,8 @@ public class EditorLevelSelection : MonoBehaviour
 
     private RedactorPanel _panelToDelete = null;
 
+    private UiAnimator uiAnim => GetComponent<UiAnimator>();
+
     private void Start()
     {
         CreateButtons();
@@ -29,12 +31,14 @@ public class EditorLevelSelection : MonoBehaviour
 
     public void OpenNewLevelPanel()
     {
+        uiAnim.CloseAnimation();
         _levelNameInputField.text = "";
         _newLevelPanel.OpenAnimation();
     }
     public void CloseNewLevelPanel()
     {
         _newLevelPanel.CloseAnimation();
+        uiAnim.OpenAnimation();
     }
     public void CreateNewLevel()
     {
@@ -88,9 +92,7 @@ public class EditorLevelSelection : MonoBehaviour
         public readonly GameObject PanelGO;
         public readonly string LevelName;
         private readonly TextMeshProUGUI _title;
-        private readonly Button _editButton;
-        private readonly Button _deleteButton;
-        private readonly Button _playButton;
+        private readonly Button _moreButton;
         private readonly Action<string> switchScene;
         private readonly Action<RedactorPanel> deleteAction;
         public RedactorPanel(GameObject prefab,
@@ -105,9 +107,7 @@ public class EditorLevelSelection : MonoBehaviour
             PanelGO = GameObject.Instantiate(prefab, parent);
 
             _title = PanelGO.transform.Find("LevelName").GetComponent<TextMeshProUGUI>();
-            _editButton = PanelGO.transform.Find("EditButton").GetComponent<Button>();
-            _deleteButton = PanelGO.transform.Find("DeleteButton").GetComponent<Button>();
-            _playButton = PanelGO.transform.Find("PlayButton").GetComponent<Button>();
+            _moreButton = PanelGO.transform.Find("MoreButton").GetComponent<Button>();
             SetLevelName();
         }
 
@@ -118,28 +118,13 @@ public class EditorLevelSelection : MonoBehaviour
         }
         private void SetCallbacks()
         {
-            _editButton.onClick.RemoveAllListeners();
-            _deleteButton.onClick.RemoveAllListeners();
-            _playButton.onClick.RemoveAllListeners();
-            _editButton.onClick.AddListener(
+            _moreButton.onClick.RemoveAllListeners();
+            _moreButton.onClick.AddListener(
                 () =>
-                {
-                    CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(LevelName));
-                    switchScene.Invoke("Redactor");
-                }
-                );
-            _playButton.onClick.AddListener(
-                () =>
-                {
-                    CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(LevelName));
-                    switchScene.Invoke("Game");
-                }
-                );
-            _deleteButton.onClick.AddListener(
-                () =>
-                {
-                    deleteAction.Invoke(this);
-                }
+                    {
+                        CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(LevelName));
+                        switchScene.Invoke("Game");
+                    }
                 );
         }
     }

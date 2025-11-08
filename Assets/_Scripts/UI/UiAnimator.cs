@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using System.Collections.Generic;
+using UnityEditor.UIElements;
 
 public class UiAnimator : MonoBehaviour
 {
@@ -46,7 +47,6 @@ public class UiAnimator : MonoBehaviour
         if (InitialOpenAnimation)
             DOTween.Sequence().SetDelay(InitialOpenDelay).OnComplete(() => OpenAnimation());
     }
-
     public Sequence OpenAnimation() => OpenAnimation(openAnimation);
     public Sequence OpenAnimation(AnimationType animType)
     {
