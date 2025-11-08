@@ -39,9 +39,13 @@ public abstract class Mover : MonoBehaviour, IMovable
             [MoverAnimation.ScaleToNormal] = ScaleToNormalAnimation,
             [MoverAnimation.ToMoverAnimation] = ToMoverAnimation
         };
-
+        GameEvents.OnPlayerReachedExit += ClearPendingDirection;
     }
-
+    private void OnDisable()
+    {
+        GameEvents.OnPlayerReachedExit -= ClearPendingDirection;
+    }
+    private void ClearPendingDirection() => _pendingDirection = null;
     public virtual bool TryMove(Vector2Int direction)
     {
         if (_isAnimationRunning)

@@ -52,9 +52,12 @@ public class LevelLoader : MonoBehaviour
 
         UIEvents.LoadingScreenAnimationEnd().WaitForCompletion();
 
-        StartCoroutine(CameraAnimation());
+        //StartCoroutine(CameraAnimation());
 
-        yield return _loadManager.SpawnAnimation();
+        //yield return _loadManager.SpawnAnimation();
+
+        StartCoroutine(_loadManager.SpawnAnimation());
+        yield return CameraAnimation();
 
         LevelLoadingComplete();
     }
@@ -64,9 +67,12 @@ public class LevelLoader : MonoBehaviour
         GameEvents.DisableInput();
         _loadManager.LoadLevel(lvl);
 
-        StartCoroutine(CameraAnimation());
+        //StartCoroutine(CameraAnimation());
 
-        yield return _loadManager.SpawnAnimation();
+        //yield return _loadManager.SpawnAnimation();
+
+        StartCoroutine(_loadManager.SpawnAnimation());
+        yield return CameraAnimation();
 
         LevelLoadingComplete();
     }
@@ -82,13 +88,18 @@ public class LevelLoader : MonoBehaviour
 
         _loadManager.LoadLevel(CurrentLevelHandler.LevelData);
 
-        StartCoroutine(CameraAnimation());
-        yield return _loadManager.SpawnAnimation();
+        //StartCoroutine(CameraAnimation());
+        //yield return _loadManager.SpawnAnimation();
+
+        StartCoroutine(_loadManager.SpawnAnimation());
+        yield return CameraAnimation();
+
         LevelLoadingComplete();
 
     }
     public void CompleteLevelSequence()
     {
+        GameEvents.DisableInput();
         _loadManager.RemovePlayer();
         ProgressSaver.SaveProgress(CurrentLevelHandler.LevelId, GameEvents.CandiesCollected);
         UIEvents.ShowResaulMenu();

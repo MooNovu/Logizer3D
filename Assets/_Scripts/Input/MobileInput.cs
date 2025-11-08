@@ -16,7 +16,7 @@ public class MobileInput : MonoBehaviour, IInputProvider, IPointerDownHandler, I
     private readonly float _repeatDelay = 0.3f;
     private readonly float _repeatInterval = 0.25f;
 
-    private bool _isActive = true;
+    private bool _isActive = false;
 
     private Vector2 _touchStartPos;
     private Vector2Int _currentDirection;
@@ -77,6 +77,7 @@ public class MobileInput : MonoBehaviour, IInputProvider, IPointerDownHandler, I
     }
     public void OnDrag(PointerEventData eventData)
     {
+        if (!_isActive) return;
         if (!_isSwiping) return;
         _safeZone = true;
         Vector2 currentPos = eventData.position;

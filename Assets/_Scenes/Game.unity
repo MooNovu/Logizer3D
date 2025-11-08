@@ -821,6 +821,7 @@ MonoBehaviour:
   PanelClosedSequence:
     m_PersistentCalls:
       m_Calls: []
+  CloseOnClick: 0
 --- !u!114 &276820445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1335,6 +1336,7 @@ MonoBehaviour:
   PanelClosedSequence:
     m_PersistentCalls:
       m_Calls: []
+  CloseOnClick: 1
 --- !u!114 &419308070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3184,6 +3186,7 @@ MonoBehaviour:
   PanelClosedSequence:
     m_PersistentCalls:
       m_Calls: []
+  CloseOnClick: 1
 --- !u!114 &1327454600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3315,6 +3318,7 @@ MonoBehaviour:
   PanelClosedSequence:
     m_PersistentCalls:
       m_Calls: []
+  CloseOnClick: 1
 --- !u!114 &1328288372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8393,6 +8397,7 @@ MonoBehaviour:
   PanelClosedSequence:
     m_PersistentCalls:
       m_Calls: []
+  CloseOnClick: 1
 --- !u!114 &1458122173
 MonoBehaviour:
   m_ObjectHideFlags: 0

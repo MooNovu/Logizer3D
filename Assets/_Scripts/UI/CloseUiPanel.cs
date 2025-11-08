@@ -8,6 +8,7 @@ public class CloseUiPanel : MonoBehaviour
 {
     public UnityEvent PanelClosed;
     public UnityEvent<Sequence> PanelClosedSequence;
+    public bool CloseOnClick = true;
     private GameObject _backgroundPanel;
     public void CreateBackgroundPanel()
     {
@@ -33,11 +34,14 @@ public class CloseUiPanel : MonoBehaviour
         bgImage.DOFade(0.4f, 0.25f);
         bgButton.transition = Selectable.Transition.None;
 
-        bgButton.onClick.AddListener(() => 
+        if (CloseOnClick)
         {
-            bgButton.interactable = false;
-            ClosePanel();
-        });
+            bgButton.onClick.AddListener(() =>
+            {
+                bgButton.interactable = false;
+                ClosePanel();
+            });
+        }
     }
     public void ClosePanel()
     {
