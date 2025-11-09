@@ -24,6 +24,21 @@ public class EditorLevelCardMenu : MonoBehaviour
         ConfigureButton(levelName, deleteLevel);
     }
 
+    private void uploadlevel(string levelName)
+    {
+        Debug.Log("Я работаю");
+        LevelData uploadinglevel = LevelList.GetUserLevel(levelName);
+        StartCoroutine( ApiHandle.UploadLevelCoroutine(uploadinglevel,   
+        onSuccess: createdLevel => {
+            Debug.Log($"Уровень создан с Именем: {createdLevel.name}");
+                    },
+        onError: error => {
+            Debug.LogError($"Ошибка: {error}");
+        }
+        ))
+            ;
+    }
+
     private void ConfigureButton(string levelName, Action<string> deleteLevel)
     {
         _playBtn.onClick.RemoveAllListeners();
@@ -35,7 +50,10 @@ public class EditorLevelCardMenu : MonoBehaviour
                 }
             );
         _publishBtn.onClick.RemoveAllListeners();
-        //
+        _publishBtn.onClick.AddListener(
+            ()=>
+                uploadlevel(levelName)
+            );
 
 
         _editBtn.onClick.RemoveAllListeners();
