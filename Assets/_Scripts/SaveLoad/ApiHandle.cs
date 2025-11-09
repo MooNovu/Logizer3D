@@ -13,16 +13,13 @@ public static class ApiHandle
     {
         using (UnityWebRequest request = UnityWebRequest.Get(apiBaseUrl))
         {
-            // await
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string jsonResponse = request.downloadHandler.text;
-                Debug.Log($"Получен ответ: {jsonResponse}");
 
                 string wrappedJson = "{\"levels\":" + jsonResponse + "}";
-
                 var levelList = JsonUtility.FromJson<LevelListWrapper>(wrappedJson);
                 onSuccess?.Invoke(levelList.levels.ToList());
             }
@@ -92,10 +89,12 @@ public class FetchedLevelData
 {
     public string name;
     public string description;
-    public LevelData levelData;
+    public string levelData;
     public LevelDifficulty difficulty;
     public int likeCount;
     public int playCount;
+
+    public LevelData LevelDataObject => JsonUtility.FromJson<LevelData>(levelData);
 }
 
 [Serializable]

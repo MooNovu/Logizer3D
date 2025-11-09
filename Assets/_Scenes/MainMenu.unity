@@ -622,6 +622,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 584445803}
+        m_TargetAssemblyTypeName: OnlineLevelsSelectionMenu, Assembly-CSharp
+        m_MethodName: Open
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &65375896
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -797,108 +809,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &194930779
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 646010435}
-    m_Modifications:
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 900
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 300
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8774295091136343448, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-      propertyPath: m_Name
-      value: OnlineLevelCard
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
---- !u!224 &194930780 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2573248325872734281, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
-  m_PrefabInstance: {fileID: 194930779}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &195758523
 GameObject:
   m_ObjectHideFlags: 0
@@ -2313,7 +2223,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 4
   m_TargetDisplay: 0
 --- !u!114 &364041188
 MonoBehaviour:
@@ -2580,7 +2490,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!224 &383327775
 RectTransform:
@@ -2771,19 +2681,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 393361954}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 868946383}
-        m_TargetAssemblyTypeName: CloseUiPanel, Assembly-CSharp
-        m_MethodName: ClosePanel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &393361954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4995,7 +4893,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!114 &584445799
 MonoBehaviour:
@@ -5086,8 +4984,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _searchUi: {fileID: 364041188}
-  _cardPrefab: {fileID: 0}
-  _parent: {fileID: 0}
+  _levelCardUi: {fileID: 868946385}
+  _cardPrefab: {fileID: 8774295091136343448, guid: 54df84cbae54b654db679a213f781fb2, type: 3}
+  _parent: {fileID: 646010435}
+  _levelMenu: {fileID: 868946387}
 --- !u!1 &590511890
 GameObject:
   m_ObjectHideFlags: 0
@@ -5392,8 +5292,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 194930780}
+  m_Children: []
   m_Father: {fileID: 1059668704}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6378,7 +6277,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 7
   m_TargetDisplay: 0
 --- !u!224 &752275607
 RectTransform:
@@ -7773,7 +7672,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!114 &868946385
 MonoBehaviour:
@@ -7835,7 +7734,6 @@ MonoBehaviour:
   _description: {fileID: 19059106}
   _downloadsCount: {fileID: 850225337}
   _likesCount: {fileID: 1483648204}
-  _size: {fileID: 428667469}
   _playBtn: {fileID: 393361953}
 --- !u!1 &871654376
 GameObject:
@@ -9059,7 +8957,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 8
   m_TargetDisplay: 0
 --- !u!114 &1189126909
 MonoBehaviour:
@@ -10692,7 +10590,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 6
   m_TargetDisplay: 0
 --- !u!114 &1592466461
 MonoBehaviour:

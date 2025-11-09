@@ -6,21 +6,26 @@ public class OnlineLevelsSelectionMenu : MonoBehaviour
 {
     private UiAnimator _onlineLevelUi => GetComponent<UiAnimator>();
     [SerializeField] private UiAnimator _searchUi;
+
+    [SerializeField] private UiAnimator _levelCardUi;
+
     [SerializeField] private GameObject _cardPrefab;
     [SerializeField] private Transform _parent;
 
-    public void Start()
+    [SerializeField] private OnlineLevelCardMenu _levelMenu;
+
+    private List<GameObject> _cards = new();
+
+    public void Open()
     {
-        CreateCards();
+        if (_cards.Count < 1) FetchLevels();
     }
 
-    private void CreateCards()
+    private void FetchLevels()
     {
         StartCoroutine(ApiHandle.GetLevelDataCoroutine(
                 onSuccess: levels => {
-                    Debug.Log($"Получено уровней: {levels.Count}");
-                    CreateCardsForSure(levels);
-                    
+                    CreateCards(levels);
                 },
                 onError: error => {
                     Debug.LogError(error);
@@ -29,13 +34,35 @@ public class OnlineLevelsSelectionMenu : MonoBehaviour
 
     }
 
-    private void CreateCardsForSure(List<FetchedLevelData> levels)
+    private void CreateCards(List<FetchedLevelData> levels)
     {
         foreach (FetchedLevelData level in levels)
         {
             var newCard = GameObject.Instantiate(_cardPrefab, _parent);
-            newCard.GetComponent<OnlineLevelCardList> ().Set(level.name, "Имя автора", level.playCount, level.likeCount, level.difficulty);
+
+            _cards.Add(newCard);
+            newCard.GetComponent<OnlineLevelCardList>()
+                .Set(level.name, "Имя автора", level.playCount, level.likeCount, level.difficulty, OpenLevel, level.LevelDataObject);
         }
+    }
+
+    public void OpenLevel(string levelName,
+        string author,
+        string description,
+        int downloads,
+        int likes,
+        LevelData levelData
+        )
+    {
+
+        _levelCardUi.OpenAnimation();
+        _onlineLevelUi.CloseAnimation();
+        _levelMenu.Set(levelName, author, description, downloads, likes, levelData);
+    }
+    public void CloseLevel()
+    {
+        _levelCardUi.CloseAnimation();
+        _onlineLevelUi.OpenAnimation();
     }
 
     public void OpenSearch()

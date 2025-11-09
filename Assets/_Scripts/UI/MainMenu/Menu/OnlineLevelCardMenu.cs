@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class OnlineLevelCardMenu : MonoBehaviour
 {
@@ -10,16 +11,17 @@ public class OnlineLevelCardMenu : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _description;
     [SerializeField] private TextMeshProUGUI _downloadsCount;
     [SerializeField] private TextMeshProUGUI _likesCount;
-    [SerializeField] private TextMeshProUGUI _size;
     [SerializeField] private Button _playBtn;
 
-    public void OpenWith(
+    [Inject] private readonly ISceneSwitcher sceneSwitcher;
+
+    public void Set(
         string levelName,
         string author,
         string description,
         int downloads,
         int likes,
-        float size
+        LevelData leveldata
         )
     {
         _levelName.text = levelName;
@@ -27,6 +29,14 @@ public class OnlineLevelCardMenu : MonoBehaviour
         _description.text = description;
         _downloadsCount.text = downloads.ToString();
         _likesCount.text = likes.ToString();
-        _size.text = size.ToString();
+
+        _playBtn.onClick.RemoveAllListeners();
+        _playBtn.onClick.AddListener(
+            () =>
+                {
+                    CurrentLevelHandler.SetLevel(leveldata);
+                    sceneSwitcher.SwitchScene("Game");
+                }
+            );
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,21 +19,32 @@ public class OnlineLevelCardList : MonoBehaviour
     [SerializeField] private Sprite _insaneSprite;
     [SerializeField] private Sprite _unknownSprite;
 
-    private Image _image => GetComponent<Image>();
+    private LevelData _levelData;
 
-    //void Start()
-    //{
-    //    _image = GetComponent<Image>();
-    //}
-
-    public void Set(string levelName, string author, int downloads, int likes, LevelDifficulty difficulty)
+    private Image Image => GetComponent<Image>();
+    public void Set(
+        string levelName, 
+        string author, 
+        int downloads, 
+        int likes, 
+        LevelDifficulty difficulty,
+        Action<string, string, string, int, int, LevelData> view,
+        LevelData levelData
+        )
     {
-        Debug.Log(_image);
-        
         _levelName.text = levelName;
         _author.text = author;
         _downloadsCount.text = downloads.ToString();
         _likesCount.text = likes.ToString();
+        _levelData = levelData;
+
+        _viewButton.onClick.RemoveAllListeners();
+        _viewButton.onClick.AddListener(
+            () =>
+                {
+                    view(levelName, author, levelData.Description, downloads, likes, levelData);
+                }
+            );
 
         SetDifficulty(difficulty);
     }
@@ -42,19 +54,19 @@ public class OnlineLevelCardList : MonoBehaviour
         switch (difficulty)
         {
             case LevelDifficulty.Easy:
-                _image.sprite = _easySprite;
+                Image.sprite = _easySprite;
                 break;
             case LevelDifficulty.Normal:
-                _image.sprite = _normalSprite;
+                Image.sprite = _normalSprite;
                 break;
             case LevelDifficulty.Hard:
-                _image.sprite = _hardSprite;
+                Image.sprite = _hardSprite;
                 break;
             case LevelDifficulty.Insane:
-                _image.sprite = _insaneSprite;
+                Image.sprite = _insaneSprite;
                 break;
             case LevelDifficulty.Unknown:
-                _image.sprite = _unknownSprite;
+                Image.sprite = _unknownSprite;
                 break;
         }
     }
