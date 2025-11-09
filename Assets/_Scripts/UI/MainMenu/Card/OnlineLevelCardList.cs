@@ -18,15 +18,17 @@ public class OnlineLevelCardList : MonoBehaviour
     [SerializeField] private Sprite _insaneSprite;
     [SerializeField] private Sprite _unknownSprite;
 
-    private Image _image;
+    private Image _image => GetComponent<Image>();
 
-    void Start()
-    {
-        _image = GetComponent<Image>();
-    }
+    //void Start()
+    //{
+    //    _image = GetComponent<Image>();
+    //}
 
     public void Set(string levelName, string author, int downloads, int likes, LevelDifficulty difficulty)
     {
+        Debug.Log(_image);
+        
         _levelName.text = levelName;
         _author.text = author;
         _downloadsCount.text = downloads.ToString();
@@ -39,7 +41,7 @@ public class OnlineLevelCardList : MonoBehaviour
     {
         switch (difficulty)
         {
-            case LevelDifficulty.Unknown:
+            case LevelDifficulty.Easy:
                 _image.sprite = _easySprite;
                 break;
             case LevelDifficulty.Normal:
@@ -50,6 +52,9 @@ public class OnlineLevelCardList : MonoBehaviour
                 break;
             case LevelDifficulty.Insane:
                 _image.sprite = _insaneSprite;
+                break;
+            case LevelDifficulty.Unknown:
+                _image.sprite = _unknownSprite;
                 break;
         }
     }
