@@ -131,6 +131,12 @@ public class UiAnimator : MonoBehaviour
 
             seq = DOTween.Sequence();
 
+            if (_canvasGroup.alpha != 1)
+            {
+                seq.SetDelay(0.1f);
+                seq.Append(_canvasGroup.DOFade(1f, 0));
+            }
+
             seq.Append(element.DOAnchorPos(endPos, AnimationDuration)
                 .SetDelay(i * 0.1f)
                 .SetEase(isOpening ? Ease.OutBack : Ease.InBack, 1f));
@@ -150,6 +156,8 @@ public class UiAnimator : MonoBehaviour
         {
             int elementIndex = isOpening ? i : _uiElements.Length - 1 - i;
             RectTransform element = _uiElements[elementIndex];
+
+            _canvasGroup.alpha = 1f;
 
             _uiElements[i].DOKill();
 

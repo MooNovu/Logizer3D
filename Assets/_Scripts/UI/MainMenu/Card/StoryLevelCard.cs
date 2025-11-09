@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainLevelButton : MonoBehaviour
+public class StoryLevelCard : MonoBehaviour
 {
     public Button Button;
 

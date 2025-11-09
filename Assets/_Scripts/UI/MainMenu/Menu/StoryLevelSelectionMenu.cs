@@ -2,13 +2,10 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.IO.LowLevel.Unsafe;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 
-public class PlayLevelSelection : MonoBehaviour
+public class StoryLevelSelectionMenu : MonoBehaviour
 {
     [SerializeField] private Transform _parent;
     [SerializeField] private GameObject _levelPrefab;
@@ -17,7 +14,7 @@ public class PlayLevelSelection : MonoBehaviour
     [Inject] private ISceneSwitcher _sceneSwitcher;
     public int Page { get; private set; }
 
-    private List<MainLevelButton> _buttons = new();
+    private List<StoryLevelCard> _buttons = new();
     private const int _itemsOnPageCount = 9;
     private int LevelCount => LevelList.GetLevelsCount();
 
@@ -64,7 +61,7 @@ public class PlayLevelSelection : MonoBehaviour
     }
     private void ReloadButton(int i) 
     {
-        MainLevelButton btn = _buttons[i];
+        StoryLevelCard btn = _buttons[i];
         btn.Button.onClick.RemoveAllListeners();
 
         int id = (_itemsOnPageCount * (Page - 1)) + i + 1;
@@ -95,7 +92,7 @@ public class PlayLevelSelection : MonoBehaviour
         for (int i = 0; i < _itemsOnPageCount; i++)
         {
             GameObject instance = GameObject.Instantiate(_levelPrefab, _parent);
-            _buttons.Add(instance.GetComponent<MainLevelButton>());
+            _buttons.Add(instance.GetComponent<StoryLevelCard>());
         }
     }
     private void UpdatePageText()

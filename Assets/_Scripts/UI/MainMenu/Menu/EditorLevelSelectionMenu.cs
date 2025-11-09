@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-public class EditorLevelSelection : MonoBehaviour
+public class EditorLevelSelectionMenu : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] private Transform _parent;
@@ -18,9 +18,10 @@ public class EditorLevelSelection : MonoBehaviour
     [Header("ConfirmPanel")]
     [SerializeField] private UiAnimator _confirmPanel;
 
-    [Inject] private readonly ISceneSwitcher _sceneSwitcher;
+    [Header("Redactor Level Panel")]
+    [SerializeField] private UiAnimator _redactorLevelPanel;
 
-    private RedactorPanel _panelToDelete = null;
+    private RedactorPanel _currentPanel = null;
 
     private UiAnimator uiAnim => GetComponent<UiAnimator>();
 
@@ -40,6 +41,14 @@ public class EditorLevelSelection : MonoBehaviour
         _newLevelPanel.CloseAnimation();
         uiAnim.OpenAnimation();
     }
+
+    public void OpenCurrentLevel(LevelData level)
+    {
+        uiAnim.CloseAnimation();
+        _redactorLevelPanel.OpenAnimation();
+        _redactorLevelPanel.gameObject.GetComponent<EditorLevelCardMenu>();
+    }
+
     public void CreateNewLevel()
     {
         if (string.IsNullOrEmpty(_levelNameInputField.text))
@@ -62,29 +71,24 @@ public class EditorLevelSelection : MonoBehaviour
     }
     private void AddPanel(string levelName)
     {
-        RedactorPanel _ = new(_uiRedactorPanelPrefab, _parent, levelName, SwitchScene, DeleteLevel);
-    }
-
-    private void SwitchScene(string sceneName)
-    {
-        _sceneSwitcher.SwitchScene(sceneName);
+        RedactorPanel _ = new(_uiRedactorPanelPrefab, _parent, levelName, DeleteLevel);
     }
     private void DeleteLevel(RedactorPanel panel)
     {
         _confirmPanel.OpenAnimation();
-        _panelToDelete = panel;
+        _currentPanel = panel;
 
     }
     public void DeleteLevel()
     {
-        SaveFileManager.DeleteLevel(_panelToDelete.LevelName);
-        Destroy(_panelToDelete.PanelGO);
-        _panelToDelete = null;
+        SaveFileManager.DeleteLevel(_currentPanel.LevelName);
+        Destroy(_currentPanel.PanelGO);
+        _currentPanel = null;
         _confirmPanel.CloseAnimation();
     }
     public void CancelDeleting()
     {
-        _panelToDelete = null;
+        _currentPanel = null;
     }
 
     private class RedactorPanel
@@ -93,15 +97,12 @@ public class EditorLevelSelection : MonoBehaviour
         public readonly string LevelName;
         private readonly TextMeshProUGUI _title;
         private readonly Button _moreButton;
-        private readonly Action<string> switchScene;
         private readonly Action<RedactorPanel> deleteAction;
         public RedactorPanel(GameObject prefab,
             Transform parent,
             string levelName,
-            Action<string> switchScene,
             Action<RedactorPanel> deleteAction)
         {
-            this.switchScene = switchScene;
             this.deleteAction = deleteAction;
             LevelName = levelName;
             PanelGO = GameObject.Instantiate(prefab, parent);
@@ -123,7 +124,6 @@ public class EditorLevelSelection : MonoBehaviour
                 () =>
                     {
                         CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(LevelName));
-                        switchScene.Invoke("Game");
                     }
                 );
         }
