@@ -5,13 +5,13 @@ using UnityEngine;
 public static class SaveFileManager
 {
     public readonly static string UserLevelPath = Path.Combine(Application.persistentDataPath, "CustomLevels");
-    public static void SaveLevel(GridSystem gridSystem, string levelName)
+    public static void SaveLevel(GridSystem gridSystem, string levelName, string discription)
     {
         if (!Directory.Exists(UserLevelPath))
         {
             Directory.CreateDirectory(UserLevelPath);
         }
-        LevelData data = CreateSaveData(gridSystem, levelName);
+        LevelData data = CreateSaveData(gridSystem, levelName, discription);
         string json = JsonUtility.ToJson(data, true);
 
         string fileName = $"{levelName}.json";
@@ -27,7 +27,7 @@ public static class SaveFileManager
         File.Delete(path);
     }
 
-    private static LevelData CreateSaveData(GridSystem gridSystem, string levelName)
+    private static LevelData CreateSaveData(GridSystem gridSystem, string levelName, string description)
     {
         LevelData data = new()
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,13 +22,15 @@ public class EditorLevelSelectionMenu : MonoBehaviour
     [Header("Redactor Level Panel")]
     [SerializeField] private UiAnimator _redactorLevelPanel;
 
-    private RedactorPanel _currentPanel = null;
+    private List<RedactorPanel> _panels = new();
+
+    private RedactorPanel _panelToDelete = null;
 
     private UiAnimator uiAnim => GetComponent<UiAnimator>();
 
     private void Start()
     {
-        CreateButtons();
+        InitialCardCreate();
     }
 
     public void OpenNewLevelPanel()
@@ -42,11 +45,17 @@ public class EditorLevelSelectionMenu : MonoBehaviour
         uiAnim.OpenAnimation();
     }
 
-    public void OpenCurrentLevel(LevelData level)
+    public void OpenCurrentLevel(string levelName)
     {
         uiAnim.CloseAnimation();
         _redactorLevelPanel.OpenAnimation();
-        _redactorLevelPanel.gameObject.GetComponent<EditorLevelCardMenu>();
+        
+        _redactorLevelPanel.gameObject.GetComponent<EditorLevelCardMenu>().Set(levelName, LevelList.GetUserLevel(levelName).Description, StartDeletingLevel);
+    }
+    public void CloseCurrentLevel()
+    {
+        uiAnim.OpenAnimation();
+        _redactorLevelPanel.CloseAnimation();
     }
 
     public void CreateNewLevel()
@@ -57,12 +66,13 @@ public class EditorLevelSelectionMenu : MonoBehaviour
             return;
         }
         string levelName = _levelNameInputField.text;
-        SaveFileManager.SaveLevel(new GridSystem(_gridSize, _gridSize), levelName);
+        string discription = string.Empty;
+        SaveFileManager.SaveLevel(new GridSystem(_gridSize, _gridSize), levelName, discription);
         AddPanel(levelName);
         CloseNewLevelPanel();
     }
 
-    private void CreateButtons()
+    private void InitialCardCreate()
     {
         foreach (string levelName in LevelList.GetAllUserLevelNames())
         {
@@ -71,24 +81,35 @@ public class EditorLevelSelectionMenu : MonoBehaviour
     }
     private void AddPanel(string levelName)
     {
-        RedactorPanel _ = new(_uiRedactorPanelPrefab, _parent, levelName, DeleteLevel);
+        _panels.Add(new RedactorPanel(_uiRedactorPanelPrefab, _parent, levelName, OpenCurrentLevel));
     }
-    private void DeleteLevel(RedactorPanel panel)
+    public void StartDeletingLevel(string levelName)
     {
         _confirmPanel.OpenAnimation();
-        _currentPanel = panel;
+        _redactorLevelPanel.CloseAnimation();
+        foreach (var panel in _panels)
+        {
+            if (panel.LevelName == levelName)
+            {
+                _panelToDelete = panel;
+                return;
+            }
+        }
 
     }
     public void DeleteLevel()
     {
-        SaveFileManager.DeleteLevel(_currentPanel.LevelName);
-        Destroy(_currentPanel.PanelGO);
-        _currentPanel = null;
+        SaveFileManager.DeleteLevel(_panelToDelete.LevelName);
+        _panels.Remove(_panelToDelete);
+        Destroy(_panelToDelete.PanelGO);
+        _panelToDelete = null;
         _confirmPanel.CloseAnimation();
+        uiAnim.OpenAnimation();
     }
     public void CancelDeleting()
     {
-        _currentPanel = null;
+        _redactorLevelPanel.OpenAnimation();
+        _panelToDelete = null;
     }
 
     private class RedactorPanel
@@ -97,13 +118,10 @@ public class EditorLevelSelectionMenu : MonoBehaviour
         public readonly string LevelName;
         private readonly TextMeshProUGUI _title;
         private readonly Button _moreButton;
-        private readonly Action<RedactorPanel> deleteAction;
-        public RedactorPanel(GameObject prefab,
-            Transform parent,
-            string levelName,
-            Action<RedactorPanel> deleteAction)
+        private readonly Action<string> _openCurrentCard;
+        public RedactorPanel(GameObject prefab, Transform parent, string levelName, Action<string> openCurrentCard)
         {
-            this.deleteAction = deleteAction;
+            _openCurrentCard = openCurrentCard;
             LevelName = levelName;
             PanelGO = GameObject.Instantiate(prefab, parent);
 
@@ -123,7 +141,7 @@ public class EditorLevelSelectionMenu : MonoBehaviour
             _moreButton.onClick.AddListener(
                 () =>
                     {
-                        CurrentLevelHandler.SetLevel(LevelList.GetUserLevel(LevelName));
+                        _openCurrentCard(LevelName);
                     }
                 );
         }

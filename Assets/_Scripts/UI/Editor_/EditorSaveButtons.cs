@@ -27,7 +27,7 @@ public class EditorSaveButtons : MonoBehaviour
         LevelConverter converter = new(CurrentLevelHandler.LevelData.width, CurrentLevelHandler.LevelData.height);
         GridSystem gridSystem = converter.LoadLevelFromSceneObject();
 
-        SaveFileManager.SaveLevel(gridSystem, CurrentLevelHandler.LevelData.Name);
+        SaveFileManager.SaveLevel(gridSystem, CurrentLevelHandler.LevelData.Name, CurrentLevelHandler.LevelData.Description);
 
         _sceneSwitcher.SwitchScene("MainMenu");
     }

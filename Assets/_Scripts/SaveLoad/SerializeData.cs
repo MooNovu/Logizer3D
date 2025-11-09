@@ -9,6 +9,7 @@ public abstract class ElementState { }
 public class LevelData
 {
     public string Name;
+    public string Description;
     public int width;
     public int height;
     public List<CellData> cells = new();

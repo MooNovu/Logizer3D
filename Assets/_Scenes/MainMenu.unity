@@ -2505,8 +2505,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 383327775}
-  - component: {fileID: 383327778}
   - component: {fileID: 383327777}
+  - component: {fileID: 383327778}
   - component: {fileID: 383327776}
   - component: {fileID: 383327774}
   - component: {fileID: 383327773}
@@ -2654,7 +2654,7 @@ MonoBehaviour:
   _levelNameInputField: {fileID: 679525906}
   _gridSize: 25
   _confirmPanel: {fileID: 1189126910}
-  _redactorLevelPanel: {fileID: 0}
+  _redactorLevelPanel: {fileID: 1592466461}
 --- !u!114 &383327778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4022,19 +4022,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 496024103}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1592466459}
-        m_TargetAssemblyTypeName: CloseUiPanel, Assembly-CSharp
-        m_MethodName: ClosePanel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &496024103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5098,6 +5086,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _searchUi: {fileID: 364041188}
+  _cardPrefab: {fileID: 0}
+  _parent: {fileID: 0}
 --- !u!1 &590511890
 GameObject:
   m_ObjectHideFlags: 0
@@ -8282,19 +8272,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 896005310}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1592466459}
-        m_TargetAssemblyTypeName: CloseUiPanel, Assembly-CSharp
-        m_MethodName: ClosePanel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &896005310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10548,19 +10526,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1587221539}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1592466459}
-        m_TargetAssemblyTypeName: CloseUiPanel, Assembly-CSharp
-        m_MethodName: ClosePanel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1587221539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10608,6 +10574,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1592466462}
+  - component: {fileID: 1592466463}
   - component: {fileID: 1592466461}
   - component: {fileID: 1592466460}
   - component: {fileID: 1592466459}
@@ -10688,9 +10655,9 @@ MonoBehaviour:
   PanelClosed:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 584445803}
-        m_TargetAssemblyTypeName: OnlineLevelsSelectionMenu, Assembly-CSharp
-        m_MethodName: CloseSearch
+      - m_Target: {fileID: 383327777}
+        m_TargetAssemblyTypeName: EditorLevelSelectionMenu, Assembly-CSharp
+        m_MethodName: CloseCurrentLevel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10770,6 +10737,24 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1592466463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592466455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d60580feccca7248980e82e0d903665, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levelName: {fileID: 720530555}
+  _description: {fileID: 525319444}
+  _playBtn: {fileID: 496024102}
+  _publishBtn: {fileID: 896005309}
+  _editBtn: {fileID: 1587221538}
+  _deleteBtn: {fileID: 1633545314}
 --- !u!1 &1596977259
 GameObject:
   m_ObjectHideFlags: 0
@@ -10928,19 +10913,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1633545315}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1592466459}
-        m_TargetAssemblyTypeName: CloseUiPanel, Assembly-CSharp
-        m_MethodName: ClosePanel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1633545315
 MonoBehaviour:
   m_ObjectHideFlags: 0

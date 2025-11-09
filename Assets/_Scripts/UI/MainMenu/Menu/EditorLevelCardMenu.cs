@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,15 +16,15 @@ public class EditorLevelCardMenu : MonoBehaviour
 
     [Inject] private readonly ISceneSwitcher _sceneSwitcher;
 
-    public void Set(string levelName, string description)
+    public void Set(string levelName, string description, Action<string> deleteLevel)
     {
         _levelName.text = levelName;
         _description.text = description;
 
-        ConfigureButton(levelName);
+        ConfigureButton(levelName, deleteLevel);
     }
 
-    private void ConfigureButton(string levelName)
+    private void ConfigureButton(string levelName, Action<string> deleteLevel)
     {
         _playBtn.onClick.RemoveAllListeners();
         _playBtn.onClick.AddListener(
@@ -35,6 +36,8 @@ public class EditorLevelCardMenu : MonoBehaviour
             );
         _publishBtn.onClick.RemoveAllListeners();
         //
+
+
         _editBtn.onClick.RemoveAllListeners();
         _editBtn.onClick.AddListener(
             () =>
@@ -44,6 +47,11 @@ public class EditorLevelCardMenu : MonoBehaviour
                 }
             );
         _deleteBtn.onClick.RemoveAllListeners();
-
+        _deleteBtn.onClick.AddListener(
+            () =>
+                {
+                    deleteLevel(levelName);
+                }
+            );
     }
 }
